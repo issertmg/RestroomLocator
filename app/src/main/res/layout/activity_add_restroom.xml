@@ -29,17 +29,36 @@
         android:layout_marginTop="5dp"
         android:hint="Name"/>
 
-<!--    TODO: replace with TimePicker view (?)-->
-    <EditText
-        android:id="@+id/etvOperatingHours"
+    <LinearLayout
+        android:id="@+id/llOperatingHours"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etvName"
         android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
-        android:hint="Operating hours"/>
+        android:layout_marginEnd="50dp">
+
+        <TextView
+            android:id="@+id/tvOperatingStart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Start Time"
+            android:textSize="18dp"
+            android:textIsSelectable="true"
+            android:background="?attr/editTextBackground"/>
+
+        <TextView
+            android:id="@+id/tvOperatingEnd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="End Time"
+            android:textSize="18dp"
+            android:textIsSelectable="true"
+            android:background="?attr/editTextBackground"/>
+    </LinearLayout>
 
     <EditText
         android:id="@+id/etvPrice"
@@ -47,11 +66,12 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etvOperatingHours"
+        app:layout_constraintTop_toBottomOf="@+id/llOperatingHours"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         android:layout_marginTop="5dp"
-        android:hint="Price"/>
+        android:hint="Price"
+        android:inputType="numberDecimal"/>
 
     <EditText
         android:id="@+id/etvRemarks"
@@ -76,6 +96,39 @@
         android:backgroundTint="#C4C4C4"
         android:text="Add"/>
 
-<!--    TODO: add views that accept up to 3 images-->
+<!--    TODO: implement taking images from gallery-->
+    <ImageButton
+        android:id="@+id/ibImgOne"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_baseline_add_24"
+        android:background="@drawable/img_button_background"
+        app:layout_constraintStart_toStartOf="@id/etvName"
+        app:layout_constraintTop_toBottomOf="@id/etvRemarks"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"/>
+
+    <ImageButton
+        android:id="@+id/ibImgTwo"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_baseline_add_24"
+        android:background="@drawable/img_button_background"
+        app:layout_constraintStart_toEndOf="@id/ibImgOne"
+        app:layout_constraintTop_toBottomOf="@id/etvRemarks"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"/>
+
+    <ImageButton
+        android:id="@+id/ibImgThree"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_baseline_add_24"
+        android:background="@drawable/img_button_background"
+        app:layout_constraintStart_toEndOf="@id/ibImgTwo"
+        app:layout_constraintTop_toBottomOf="@id/etvRemarks"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
