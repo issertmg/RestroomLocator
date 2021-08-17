@@ -15,7 +15,6 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="40dp"
         app:layout_constraintBottom_toTopOf="@id/etvUsername"
-        android:src=""
         />
 
     <EditText
