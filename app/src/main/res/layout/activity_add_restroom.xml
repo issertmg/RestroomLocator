@@ -46,7 +46,7 @@
             android:layout_weight="1"
             android:hint="Start Time"
             android:textSize="18dp"
-            android:textIsSelectable="true"
+            android:textIsSelectable="false"
             android:background="?attr/editTextBackground"/>
 
         <TextView
@@ -56,7 +56,7 @@
             android:layout_weight="1"
             android:hint="End Time"
             android:textSize="18dp"
-            android:textIsSelectable="true"
+            android:textIsSelectable="false"
             android:background="?attr/editTextBackground"/>
     </LinearLayout>
 
@@ -96,7 +96,6 @@
         android:backgroundTint="#C4C4C4"
         android:text="Add"/>
 
-<!--    TODO: implement taking images from gallery-->
     <ImageButton
         android:id="@+id/ibImgOne"
         android:layout_width="50dp"
