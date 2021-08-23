@@ -27,6 +27,10 @@ public class AddRestroomActivity extends AppCompatActivity {
     private int padding_dp = 2;
     private int padding_px;
 
+    // For storing location from intent
+    private double latitude;
+    private double longitude;
+
     private ActivityResultLauncher<Intent> galleryActivityResultLauncherOne = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -87,6 +91,10 @@ public class AddRestroomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_restroom);
 
         padding_px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding_dp, AddRestroomActivity.this.getResources().getDisplayMetrics());
+
+        // get location from intent
+        latitude = getIntent().getDoubleExtra(ViewRestroomsNearbyActivity.LATITUDE, 0.0);
+        longitude = getIntent().getDoubleExtra(ViewRestroomsNearbyActivity.LONGITUDE, 0.0);
 
         // setting TimePickerDialog to pop up on click
         tvStartTime = findViewById(R.id.tvOperatingStart);

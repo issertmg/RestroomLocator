@@ -8,9 +8,11 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import androidx.annotation.Nullable;
@@ -26,15 +28,21 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -57,23 +65,36 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+
 public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
     private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MapView map = null;
 
-    double longitude;
-    double latitude;
+    private double longitude;
+    private double latitude;
 
     MapEventsOverlay myOverlay;
 
+    public static final String LATITUDE = "LATITUDE";
+    public static final String LONGITUDE = "LONGITUDE";
 
     // For getting GPS location
     private static LocationManager locationManager;
     private static final int REQUEST_CHECK_SETTINGS = 111;
 
+    // Testing
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationRequest mLocationRequest;
+    private long UPDATE_INTERVAL = 1000;  /* 1 secs */
+    private long FASTEST_INTERVAL = 1000; /* 1 sec */
+
     private Marker pin;
     private AccuracyOverlay accuracyOverlay;
+
+    //Floating action buttons
+    FloatingActionButton BtnCurrentLocation, BtnAddReview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +103,30 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mFusedLocationClient = getFusedLocationProviderClient(this);
 
         setContentView(R.layout.activity_view_restrooms_nearby);
+
+        // Initialize Floating Action Buttons
+        BtnCurrentLocation = findViewById(R.id.fab_current_location);
+        BtnCurrentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pinCurrentLocationToMap();
+            }
+        });
+
+        BtnAddReview = findViewById(R.id.fab_add_review);
+        BtnAddReview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ViewRestroomsNearbyActivity.this, AddRestroomActivity.class);
+                i.putExtra(LATITUDE, latitude);
+                i.putExtra(LONGITUDE, longitude);
+                startActivity(i);
+            }
+        });
+
 
         // Initialize mapview
         map = (MapView) findViewById(R.id.mapview);
@@ -93,13 +136,17 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
         //create user pinpoint
         pin = new Marker(map);
+        pin.setVisible(false);
         map.getOverlayManager().add(pin);
 
         //add tap listener to map
         final MapEventsReceiver mReceive = new MapEventsReceiver(){
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                pin.setPosition(new GeoPoint(p.getLatitude(),p.getLongitude()));
+                latitude = p.getLatitude();
+                longitude = p.getLongitude();
+                pin.setVisible(true);
+                pin.setPosition(p);
                 if (accuracyOverlay != null) {
                     map.getOverlays().remove(accuracyOverlay);
                     map.invalidate();
@@ -125,65 +172,19 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         });
 
-        // Ask for GPS if disabled
-        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if(!isGPSEnabled)
-            askToEnableGPS();
+        pinCurrentLocationToMap();
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-        if(isGPSEnabled){
-            do {
-                GPSTracker gps = new GPSTracker(ViewRestroomsNearbyActivity.this);
-                Log.d("count", "1");
-                latitude = gps.getLatitude();
-                longitude = gps.getLongitude();
-                Toast.makeText(this, "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
-            } while (latitude == 0.0 && longitude == 0.0);
-
-
-//            ExecutorService executorService = Executors.newSingleThreadExecutor();
-//            executorService.execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    GPSTracker gps = new GPSTracker(ViewRestroomsNearbyActivity.this);
-//                    latitude = gps.getLatitude();
-//                    longitude = gps.getLongitude();
-//
-//                    Log.d("latitude", ""+latitude);
-//                    Log.d("longitude", ""+longitude);
-//                }
-//            });
-        }
-
-        IMapController mapController = map.getController();
-        mapController.setZoom(19.0);
-        GeoPoint startPoint = new GeoPoint(latitude, longitude);
-        mapController.setCenter(startPoint);
-
-        //Place current location on map
-        pin.setPosition(new GeoPoint(latitude,longitude));
-        map.invalidate();
-        if (accuracyOverlay != null) {
-            map.getOverlays().remove(accuracyOverlay);
-            map.invalidate();
-        }
-        accuracyOverlay = new AccuracyOverlay(new GeoPoint(latitude,longitude), 500);
-        map.getOverlays().add(accuracyOverlay);
-
-
 
         //this will refresh the osmdroid configuration on resuming.
         //if you make changes to the configuration, use
@@ -234,19 +235,6 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     }
 
     private void later() {
-        Context ctx = getApplicationContext();
-        //map.setBuiltInZoomControls(true);
-        //map.getZoomController().setVisibility(View.VISIBLE);
-        map.setMultiTouchControls(true);
-
-        IMapController mapController = map.getController();
-        mapController.setZoom(19.0);
-        GeoPoint startPoint = new GeoPoint(latitude, longitude);
-        mapController.setCenter(startPoint);
-
-        MyLocationNewOverlay mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(ctx),map);
-        mLocationOverlay.enableMyLocation();
-        map.getOverlays().add(mLocationOverlay);
 
         //your items
         ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
@@ -267,28 +255,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
                     }
                 }, ViewRestroomsNearbyActivity.this);
         mOverlay.setFocusItemsOnTap(true);
-
         map.getOverlays().add(mOverlay);
-
-        final MapEventsReceiver mReceive = new MapEventsReceiver(){
-            @Override
-            public boolean singleTapConfirmedHelper(GeoPoint p) {
-                if (myOverlay.isEnabled()) {
-                    Toast.makeText(getBaseContext(),p.getLatitude() + " - "+p.getLongitude(), Toast.LENGTH_LONG).show();
-                    myOverlay.setEnabled(false);
-                }
-                else {
-                    myOverlay.setEnabled(true);
-            }
-                return false;
-            }
-            @Override
-            public boolean longPressHelper(GeoPoint p) {
-                return false;
-            }
-        };
-        myOverlay = new MapEventsOverlay(mReceive);
-        map.getOverlays().add(myOverlay);
     }
 
     private void askToEnableGPS() {
@@ -347,17 +314,81 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
             case REQUEST_CHECK_SETTINGS:
                 switch (resultCode) {
                     case Activity.RESULT_OK:
-                        // All required changes were successfully made
-                        Toast.makeText(getApplicationContext(),"User has clicked on OK - So GPS is on", Toast.LENGTH_SHORT).show();
+                        pinCurrentLocationToMap();
+                        Toast.makeText(getApplicationContext(),"GPS enabled.", Toast.LENGTH_SHORT).show();
                         break;
                     case Activity.RESULT_CANCELED:
-                        // The user was asked to change settings, but chose not to
-                        Toast.makeText(getApplicationContext(),"User has clicked on NO, THANKS - So GPS is still off.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"GPS is disabled. Current location cannot be determined.", Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         break;
                 }
                 break;
+        }
+    }
+
+    protected void getLocationOnce() {
+
+        // Create the location request to start receiving updates
+        mLocationRequest = LocationRequest.create()
+        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        .setInterval(UPDATE_INTERVAL)
+        .setFastestInterval(FASTEST_INTERVAL)
+        .setWaitForAccurateLocation(true);
+
+        // Create LocationSettingsRequest object using location request
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        LocationSettingsRequest locationSettingsRequest = builder.build();
+
+        // Check whether location settings are satisfied
+        // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
+        SettingsClient settingsClient = LocationServices.getSettingsClient(this);
+        settingsClient.checkLocationSettings(locationSettingsRequest);
+
+        // new Google API SDK v11 uses getFusedLocationProviderClient(this)
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        // do work here
+                        mFusedLocationClient.removeLocationUpdates(this);
+                        onLocationChanged(locationResult.getLastLocation());
+                    }
+                },
+                Looper.myLooper());
+    }
+
+    public void onLocationChanged(Location location) {
+        // New location has now been determined
+        Toast.makeText(this, "Current location found", Toast.LENGTH_SHORT).show();
+
+        //Zoom map to current location
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        IMapController mapController = map.getController();
+        mapController.setZoom(17.5);
+        GeoPoint startPoint = new GeoPoint(latitude, longitude);
+        mapController.setCenter(startPoint);
+
+        //Pin current location on map
+        pin.setVisible(true);
+        pin.setPosition(new GeoPoint(latitude,longitude));
+        map.invalidate();
+        if (accuracyOverlay != null) {
+            map.getOverlays().remove(accuracyOverlay);
+            map.invalidate();
+        }
+        accuracyOverlay = new AccuracyOverlay(new GeoPoint(latitude,longitude), 500);
+        map.getOverlays().add(accuracyOverlay);
+    }
+
+    public void pinCurrentLocationToMap() {
+        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if(isGPSEnabled) {
+            getLocationOnce();
+        }
+        else {
+            askToEnableGPS();
         }
     }
 }
