@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1098551369009",
+    "project_id": "mobdeve-77c33",
+    "storage_bucket": "mobdeve-77c33.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098551369009:android:dc0e549915a372beebe410",
+        "android_client_info": {
+          "package_name": "com.mobdeve.s15.g16.restroomlocator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098551369009-ogjbmn9vv9d1rd6fjangihm4fvp36juh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXCShC-dJmSOUChDge6JE_IvndvdxFEvY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1098551369009-ogjbmn9vv9d1rd6fjangihm4fvp36juh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
