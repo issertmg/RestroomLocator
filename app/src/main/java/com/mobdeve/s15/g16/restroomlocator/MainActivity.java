@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
         //FOR TESTING:
         Intent i = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(i);
+        finish();
 
     }
 }

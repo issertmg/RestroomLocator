@@ -19,9 +19,9 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         this.ivReviewImageTwo = itemView.findViewById(R.id.ivReviewImageTwo);
         this.ivReviewImageThree = itemView.findViewById(R.id.ivReviewImageThree);
         this.tvReviewUsername = itemView.findViewById(R.id.tvReviewUsername);
-        this.tvReviewNumber = itemView.findViewById(R.id.tvReviewNumber);
-        this.tvReviewName = itemView.findViewById(R.id.tvReviewName);
-        this.rbReviewRating = itemView.findViewById(R.id.rbReviewRating);
+        //this.tvReviewNumber = itemView.findViewById(R.id.tvReviewNumber);
+        //this.tvReviewName = itemView.findViewById(R.id.tvReviewName);
+        //this.rbReviewRating = itemView.findViewById(R.id.rbReviewRating);
     }
 
     public void setIvReviewImageOne(int iv) {this.ivReviewImageOne.setImageResource(iv);}

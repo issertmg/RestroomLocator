@@ -15,15 +15,19 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -43,6 +47,7 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.osmdroid.api.IMapController;
@@ -97,6 +102,10 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     //Floating action buttons
     FloatingActionButton BtnCurrentLocation, BtnAddReview;
 
+    private DrawerLayout dl;
+    private ActionBarDrawerToggle t;
+    private NavigationView nv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +116,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         mFusedLocationClient = getFusedLocationProviderClient(this);
 
         setContentView(R.layout.activity_view_restrooms_nearby);
+
+        initializeNavigationDrawer();
 
         // Initialize Floating Action Buttons
         BtnCurrentLocation = findViewById(R.id.fab_current_location);
@@ -128,9 +139,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
             }
         });
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-
-        Toast.makeText(getApplicationContext(), "uid: "+ mAuth.getCurrentUser().getUid(), Toast.LENGTH_LONG).show();
+        //FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        //Toast.makeText(getApplicationContext(), "uid: "+ mAuth.getCurrentUser().getUid(), Toast.LENGTH_LONG).show();
 
 
         // Initialize mapview
@@ -178,6 +188,41 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         });
 
         pinCurrentLocationToMap();
+
+    }
+
+    private void initializeNavigationDrawer() {
+        dl = (DrawerLayout)findViewById(R.id.activity_main);
+        t = new ActionBarDrawerToggle(this, dl,R.string.app_name, R.string.app_name);
+
+        dl.addDrawerListener(t);
+        t.syncState();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        nv = (NavigationView)findViewById(R.id.nv);
+        nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                switch(id)
+                {
+                    case R.id.view_profile:
+                        startActivity(new Intent(ViewRestroomsNearbyActivity.this, UserProfileActivity.class));
+                        break;
+                    case R.id.change_password:
+                        // TODO change password activity
+                        break;
+                    case R.id.logout:
+                        FirebaseAuth.getInstance().signOut();
+                        startActivity(new Intent(ViewRestroomsNearbyActivity.this, LoginActivity.class));
+                        break;
+                    default:
+                        return true;
+                }
+                return true;
+            }
+        });
 
     }
 
@@ -395,5 +440,13 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         else {
             askToEnableGPS();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(t.onOptionsItemSelected(item))
+            return true;
+
+        return super.onOptionsItemSelected(item);
     }
 }
