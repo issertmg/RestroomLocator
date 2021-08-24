@@ -43,6 +43,7 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -126,6 +127,10 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        Toast.makeText(getApplicationContext(), "uid: "+ mAuth.getCurrentUser().getUid(), Toast.LENGTH_LONG).show();
 
 
         // Initialize mapview

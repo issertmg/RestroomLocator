@@ -27,11 +27,17 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 dependencies {
     implementation 'org.osmdroid:osmdroid-android:6.1.10'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
 
+    implementation platform('com.google.firebase:firebase-bom:28.4.0')
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-auth'
 
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
