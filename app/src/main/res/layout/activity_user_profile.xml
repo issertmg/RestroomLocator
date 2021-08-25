@@ -10,54 +10,78 @@
         android:id="@+id/tvUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="Username"
-        android:textSize="20dp"
-        android:textStyle="bold"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="22dp"
-        android:layout_marginStart="50dp"/>
-
-    <TextView
-        android:id="@+id/tvAge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/tvUsername"
-        app:layout_constraintTop_toBottomOf="@id/tvUsername"
-        android:layout_marginTop="20dp"
-        android:text="Account age"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
+        android:fontFamily="@font/rubik_medium"
+        android:text="Username"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvAgeValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/tvUsername"
-        app:layout_constraintTop_toBottomOf="@id/tvAge"
-        android:layout_marginTop="10dp"
-        android:text="AGEVALUE"
-        android:textSize="14sp"/>
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/rubik"
+        android:text="Joined 5y"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvUsername" />
 
-    <TextView
-        android:id="@+id/tvNReviews"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/tvUsername"
-        app:layout_constraintTop_toBottomOf="@id/tvAgeValue"
-        android:layout_marginTop="20dp"
-        android:text="Number of reviews made"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
+    <View
+        android:id="@+id/view5"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="#e0e0e0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAgeValue" />
 
-    <TextView
-        android:id="@+id/tvNReviewsValue"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/tvUsername"
-        app:layout_constraintTop_toBottomOf="@id/tvNReviews"
-        android:layout_marginTop="10dp"
-        android:text="NREVIEWVALUE"
-        android:textSize="14sp"/>
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvAgeValue">
+
+        <TextView
+            android:id="@+id/tvNReviews"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/rubik_medium"
+            android:text="Reviews"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/tvNReviewsValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/rubik"
+            android:text="(10)"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

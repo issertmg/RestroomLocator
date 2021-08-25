@@ -10,127 +10,136 @@
         android:id="@+id/tvAddRestroom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="@id/etvName"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/rubik_medium"
         android:text="Add restroom"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        android:layout_marginTop="22dp"/>
+        android:textColor="@color/black"
+        android:textSize="24dp"
+        android:textStyle="normal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/etvName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAddRestroom"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="5dp"
-        android:textSize="16sp"
-        android:hint="Name"/>
+        android:fontFamily="@font/rubik"
+        android:hint="Name"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvAddRestroom" />
 
     <LinearLayout
         android:id="@+id/llOperatingHours"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etvName"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp">
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etvName">
 
         <TextView
             android:id="@+id/tvOperatingStart"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="?attr/editTextBackground"
+            android:fontFamily="@font/rubik"
             android:hint="Start Time"
-            android:textSize="16sp"
             android:textIsSelectable="false"
-            android:background="?attr/editTextBackground"/>
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvOperatingEnd"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="?attr/editTextBackground"
+            android:fontFamily="@font/rubik"
             android:hint="End Time"
-            android:textSize="16sp"
             android:textIsSelectable="false"
-            android:background="?attr/editTextBackground"/>
+            android:textSize="14sp" />
     </LinearLayout>
 
     <EditText
         android:id="@+id/etvPrice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/llOperatingHours"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="5dp"
-        android:textSize="16sp"
+        android:fontFamily="@font/rubik"
         android:hint="Price"
-        android:inputType="numberDecimal"/>
+        android:inputType="numberDecimal"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/llOperatingHours" />
 
     <EditText
         android:id="@+id/etvRemarks"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etvPrice"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:textSize="16sp"
-        android:hint="Remarks"/>
+        android:fontFamily="@font/rubik"
+        android:hint="Remarks"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etvPrice" />
 
     <Button
         android:id="@+id/btnAdd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="50dp"
-        android:backgroundTint="#C4C4C4"
-        android:text="Add"/>
+        android:backgroundTint="@color/secondaryColor"
+        android:text="Add"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ibImgThree" />
 
     <ImageButton
         android:id="@+id/ibImgOne"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/ic_baseline_add_24"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/img_button_background"
-        app:layout_constraintStart_toStartOf="@id/etvName"
-        app:layout_constraintTop_toBottomOf="@id/etvRemarks"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"/>
+        android:src="@drawable/ic_baseline_add_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etvRemarks" />
 
     <ImageButton
         android:id="@+id/ibImgTwo"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/ic_baseline_add_24"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/img_button_background"
+        android:src="@drawable/ic_baseline_add_24"
         app:layout_constraintStart_toEndOf="@id/ibImgOne"
-        app:layout_constraintTop_toBottomOf="@id/etvRemarks"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"/>
+        app:layout_constraintTop_toBottomOf="@id/etvRemarks" />
 
     <ImageButton
         android:id="@+id/ibImgThree"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/ic_baseline_add_24"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/img_button_background"
+        android:src="@drawable/ic_baseline_add_24"
         app:layout_constraintStart_toEndOf="@id/ibImgTwo"
-        app:layout_constraintTop_toBottomOf="@id/etvRemarks"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"/>
+        app:layout_constraintTop_toBottomOf="@id/etvRemarks" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
