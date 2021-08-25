@@ -48,6 +48,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.osmdroid.api.IMapController;
@@ -77,6 +78,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
     private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MapView map = null;
+    IMapController mapController;
 
     private double longitude;
     private double latitude;
@@ -132,10 +134,13 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         BtnAddReview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(ViewRestroomsNearbyActivity.this, AddRestroomActivity.class);
-                i.putExtra(LATITUDE, latitude);
-                i.putExtra(LONGITUDE, longitude);
-                startActivity(i);
+                Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+//                Intent i = new Intent(ViewRestroomsNearbyActivity.this, AddRestroomActivity.class);
+//                i.putExtra(LATITUDE, latitude);
+//                i.putExtra(LONGITUDE, longitude);
+//                startActivity(i);
             }
         });
 
@@ -148,6 +153,10 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
         map.setMultiTouchControls(true);
+        map.setMinZoomLevel(8.0);
+        mapController = map.getController();
+        mapController.setZoom(13.0);
+        mapController.setCenter(new GeoPoint(14.5995,120.9842));
 
         //create user pinpoint
         pin = new Marker(map);
@@ -415,10 +424,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         //Zoom map to current location
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-        IMapController mapController = map.getController();
         mapController.setZoom(17.5);
-        GeoPoint startPoint = new GeoPoint(latitude, longitude);
-        mapController.setCenter(startPoint);
+        mapController.setCenter(new GeoPoint(latitude, longitude));
 
         //Pin current location on map
         pin.setVisible(true);
