@@ -40,7 +40,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:textSize="16sp"
-        android:hint="Password"/>
+        android:hint="Password"
+        android:inputType="textPassword"/>
 
     <Button
         android:id="@+id/btnSignUp"
