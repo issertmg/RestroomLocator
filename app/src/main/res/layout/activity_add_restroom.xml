@@ -27,6 +27,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="5dp"
+        android:textSize="16sp"
         android:hint="Name"/>
 
     <LinearLayout
@@ -45,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Start Time"
-            android:textSize="18dp"
+            android:textSize="16sp"
             android:textIsSelectable="false"
             android:background="?attr/editTextBackground"/>
 
@@ -55,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="End Time"
-            android:textSize="18dp"
+            android:textSize="16sp"
             android:textIsSelectable="false"
             android:background="?attr/editTextBackground"/>
     </LinearLayout>
@@ -70,6 +71,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="5dp"
+        android:textSize="16sp"
         android:hint="Price"
         android:inputType="numberDecimal"/>
 
@@ -82,6 +84,7 @@
         app:layout_constraintTop_toBottomOf="@id/etvPrice"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:textSize="16sp"
         android:hint="Remarks"/>
 
     <Button
