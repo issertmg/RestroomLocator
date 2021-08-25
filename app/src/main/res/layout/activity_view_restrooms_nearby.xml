@@ -44,9 +44,17 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
-            app:layout_constraintBottom_toBottomOf="@+id/mapview"
+            app:layout_constraintBottom_toTopOf="@+id/snackbar_area"
             app:layout_constraintEnd_toEndOf="@+id/mapview"
             app:srcCompat="@drawable/sharp_add_black_36" />
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/snackbar_area"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"></androidx.coordinatorlayout.widget.CoordinatorLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView

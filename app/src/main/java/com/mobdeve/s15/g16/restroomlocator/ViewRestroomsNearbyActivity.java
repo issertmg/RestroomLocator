@@ -6,33 +6,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.location.LocationManager;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -62,15 +56,9 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
-import org.osmdroid.views.overlay.mylocation.SimpleLocationOverlay;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -79,11 +67,6 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MapView map = null;
     IMapController mapController;
-
-    private double longitude;
-    private double latitude;
-
-    MapEventsOverlay myOverlay;
 
     public static final String LATITUDE = "LATITUDE";
     public static final String LONGITUDE = "LONGITUDE";
@@ -98,15 +81,24 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     private long UPDATE_INTERVAL = 1000;  /* 1 secs */
     private long FASTEST_INTERVAL = 1000; /* 1 sec */
 
-    private Marker pin;
+
+    private MapEventsOverlay myLocationEventsOverlay;
+    private Marker myPin;
     private AccuracyOverlay accuracyOverlay;
 
+    private MapEventsOverlay newRestroomEventsOverlay;
+    private Marker addPin;
+    private boolean isAddRestroomMode;
+
+
     //Floating action buttons
-    FloatingActionButton BtnCurrentLocation, BtnAddReview;
+    FloatingActionButton btnCurrentLocation, btnAddReview;
 
     private DrawerLayout dl;
     private ActionBarDrawerToggle t;
     private NavigationView nv;
+    private CoordinatorLayout cl;
+    private Snackbar sb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,35 +110,47 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         mFusedLocationClient = getFusedLocationProviderClient(this);
 
         setContentView(R.layout.activity_view_restrooms_nearby);
-
         initializeNavigationDrawer();
 
         // Initialize Floating Action Buttons
-        BtnCurrentLocation = findViewById(R.id.fab_current_location);
-        BtnCurrentLocation.setOnClickListener(new View.OnClickListener() {
+        btnCurrentLocation = findViewById(R.id.fab_current_location);
+        btnCurrentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { pinCurrentLocationToMap(); }
+        });
+
+        btnAddReview = findViewById(R.id.fab_add_review);
+        btnAddReview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pinCurrentLocationToMap();
+                if (isAddRestroomMode) {
+                    setAddMyLocationMode();
+                    sb.dismiss();
+                    Intent i = new Intent(ViewRestroomsNearbyActivity.this, AddRestroomActivity.class);
+                    i.putExtra(LATITUDE, addPin.getPosition().getLatitude());
+                    i.putExtra(LONGITUDE, addPin.getPosition().getLongitude());
+                    startActivity(i);
+                }
+                else {
+                    setAddRestroomMode();
+                }
+
             }
         });
 
-        BtnAddReview = findViewById(R.id.fab_add_review);
-        BtnAddReview.setOnClickListener(new View.OnClickListener() {
+        //TODO: make snackbar undismissable
+        // Initialize snackbar
+        cl = findViewById(R.id.snackbar_area);
+        sb = Snackbar.make(cl, "", Snackbar.LENGTH_INDEFINITE);
+        sb.setAction("CANCEL", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-//                Intent i = new Intent(ViewRestroomsNearbyActivity.this, AddRestroomActivity.class);
-//                i.putExtra(LATITUDE, latitude);
-//                i.putExtra(LONGITUDE, longitude);
-//                startActivity(i);
+                setAddMyLocationMode();
             }
         });
 
         //FirebaseAuth mAuth = FirebaseAuth.getInstance();
         //Toast.makeText(getApplicationContext(), "uid: "+ mAuth.getCurrentUser().getUid(), Toast.LENGTH_LONG).show();
-
 
         // Initialize mapview
         map = (MapView) findViewById(R.id.mapview);
@@ -158,19 +162,25 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         mapController.setZoom(13.0);
         mapController.setCenter(new GeoPoint(14.5995,120.9842));
 
-        //create user pinpoint
-        pin = new Marker(map);
-        pin.setVisible(false);
-        map.getOverlayManager().add(pin);
+        //Check external storage write permission is not granted.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            map.setVisibility(View.GONE);
+            btnAddReview.setVisibility(View.GONE);
+            btnCurrentLocation.setVisibility(View.GONE);
+            requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
 
-        //add tap listener to map
-        final MapEventsReceiver mReceive = new MapEventsReceiver(){
+        //Initialize user pin
+        myPin = new Marker(map);
+        myPin.setVisible(false);
+        map.getOverlayManager().add(myPin);
+
+        // Initialize map listener for user pin
+        final MapEventsReceiver myLocationReceiver = new MapEventsReceiver(){
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                latitude = p.getLatitude();
-                longitude = p.getLongitude();
-                pin.setVisible(true);
-                pin.setPosition(p);
+                myPin.setVisible(true);
+                myPin.setPosition(p);
                 if (accuracyOverlay != null) {
                     map.getOverlays().remove(accuracyOverlay);
                     map.invalidate();
@@ -185,19 +195,39 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
                 return false;
             }
         };
-        myOverlay = new MapEventsOverlay(mReceive);
-        map.getOverlays().add(myOverlay);
+        myLocationEventsOverlay = new MapEventsOverlay(myLocationReceiver);
+        map.getOverlays().add(myLocationEventsOverlay);
 
+        // Initialize add restroom pinpoint
+        addPin = new Marker(map);
+        addPin.setVisible(false);
+        map.getOverlayManager().add(addPin);
 
-        requestPermissionsIfNecessary(new String[] {
-                // if you need to show the current location, uncomment the line below
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                // WRITE_EXTERNAL_STORAGE is required in order to show the map
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-        });
+        // Initialize map listener for add restroom pin
+        final MapEventsReceiver newRestroomReceiver = new MapEventsReceiver(){
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+                addPin.setVisible(true);
+                addPin.setPosition(p);
+                map.invalidate();
 
-        pinCurrentLocationToMap();
+                // Show btnAddReview as Check button
+                btnAddReview.setImageResource(R.drawable.checkmark);
+                btnAddReview.setVisibility(View.VISIBLE);
 
+                sb.setText("Restroom location pinned.");
+                return false;
+            }
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                return false;
+            }
+        };
+        newRestroomEventsOverlay = new MapEventsOverlay(newRestroomReceiver);
+
+        isAddRestroomMode = false;
+
+        //pinCurrentLocationToMap();
     }
 
     private void initializeNavigationDrawer() {
@@ -220,11 +250,12 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
                         startActivity(new Intent(ViewRestroomsNearbyActivity.this, UserProfileActivity.class));
                         break;
                     case R.id.change_password:
-                        // TODO change password activity
+                        startActivity(new Intent(ViewRestroomsNearbyActivity.this, ChangePasswordActivity.class));
                         break;
                     case R.id.logout:
                         FirebaseAuth.getInstance().signOut();
                         startActivity(new Intent(ViewRestroomsNearbyActivity.this, LoginActivity.class));
+                        finish();
                         break;
                     default:
                         return true;
@@ -260,37 +291,6 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        ArrayList<String> permissionsToRequest = new ArrayList<>();
-        for (int i = 0; i < grantResults.length; i++) {
-            permissionsToRequest.add(permissions[i]);
-        }
-        if (permissionsToRequest.size() > 0) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    permissionsToRequest.toArray(new String[0]),
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }
-
-    private void requestPermissionsIfNecessary(String[] permissions) {
-        ArrayList<String> permissionsToRequest = new ArrayList<>();
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(this, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // Permission is not granted
-                permissionsToRequest.add(permission);
-            }
-        }
-        if (permissionsToRequest.size() > 0) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    permissionsToRequest.toArray(new String[0]),
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
     }
 
     private void later() {
@@ -421,31 +421,73 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         // New location has now been determined
         Toast.makeText(this, "Current location found", Toast.LENGTH_SHORT).show();
 
+        // Create GeoPoint from location
+        GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
+
         //Zoom map to current location
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
         mapController.setZoom(17.5);
-        mapController.setCenter(new GeoPoint(latitude, longitude));
+        mapController.setCenter(p);
 
         //Pin current location on map
-        pin.setVisible(true);
-        pin.setPosition(new GeoPoint(latitude,longitude));
-        map.invalidate();
+        myPin.setVisible(true);
+        myPin.setPosition(p);
+
+        //Add accuracy circle
         if (accuracyOverlay != null) {
             map.getOverlays().remove(accuracyOverlay);
-            map.invalidate();
         }
-        accuracyOverlay = new AccuracyOverlay(new GeoPoint(latitude,longitude), 500);
+        accuracyOverlay = new AccuracyOverlay(p, 500);
         map.getOverlays().add(accuracyOverlay);
+        map.invalidate();
     }
 
+    public boolean areLocationPermissionsGranted() {
+        return ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private ActivityResultLauncher<String[]> requestMultiplePermissions =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
+                if (isGranted.containsValue(false)) {
+                    // Permission denied
+                    Toast.makeText(ViewRestroomsNearbyActivity.this, "Location-related permissions were denied. Please grant permissions to get current location.", Toast.LENGTH_LONG).show();
+                } else {
+                    // Permission is granted. Continue the action or workflow in your app.
+                    pinCurrentLocationToMap();
+                }
+            });
+
+    private ActivityResultLauncher<String> requestPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Show map and floating action buttons.
+                    map.setVisibility(View.VISIBLE);
+                    btnAddReview.setVisibility(View.VISIBLE);
+                    btnCurrentLocation.setVisibility(View.VISIBLE);
+                } else {
+                    // Permission denied
+                    Toast.makeText(ViewRestroomsNearbyActivity.this, "External storage write permission was denied. Please grant permission to view map.", Toast.LENGTH_LONG).show();
+                }
+            });
+
     public void pinCurrentLocationToMap() {
-        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if(isGPSEnabled) {
-            getLocationOnce();
+
+        // Check if location permissions are granted
+        if (areLocationPermissionsGranted()) {
+            boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            if(isGPSEnabled) {
+                getLocationOnce();
+            }
+            else {
+                askToEnableGPS();
+            }
         }
+        // Else ask for permissions
         else {
-            askToEnableGPS();
+            requestMultiplePermissions.launch(new String [] {
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            });
         }
     }
 
@@ -455,5 +497,38 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
             return true;
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setAddMyLocationMode() {
+        // Show the default BtnAddReview
+        btnAddReview.setImageResource(R.drawable.sharp_add_black_36);
+        btnAddReview.setVisibility(View.VISIBLE);
+
+        // Hide addRestroom pin
+        addPin.setVisible(false);
+
+        // Enable myLocationOverlay
+        map.getOverlays().add(myLocationEventsOverlay);
+
+        // Disable addRestroomOverlay
+        map.getOverlays().remove(newRestroomEventsOverlay);
+
+        map.invalidate();
+        isAddRestroomMode = false;
+    }
+
+    public void setAddRestroomMode() {
+        // Hide btnAddReview
+        btnAddReview.setVisibility(View.GONE);
+
+        // Disable myLocationOverlay
+        map.getOverlays().remove(myLocationEventsOverlay);
+
+        // Enable addRestroomOverlay
+        map.getOverlays().add(newRestroomEventsOverlay);
+
+        sb.setText("Pin a location to add a restroom");
+        sb.show();
+        isAddRestroomMode = true;
     }
 }

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mobdeve.s15.g16.restroomlocator">
+    package="com.mobdeve.s15.g16.restroomlocator" >
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -15,15 +14,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RestroomLocator">
-        <activity android:name=".ViewRestroomsNearbyActivity"></activity>
-        <activity android:name=".ViewReviewDetailsActivity"></activity>
-        <activity android:name=".ViewReviewsActivity"></activity>
-        <activity android:name=".UserProfileActivity"></activity>
+        android:theme="@style/Theme.RestroomLocator" >
+        <activity android:name=".ChangePasswordActivity" >
+        </activity>
+        <activity android:name=".ViewRestroomsNearbyActivity" />
+        <activity android:name=".ViewReviewDetailsActivity" />
+        <activity android:name=".ViewReviewsActivity" />
+        <activity android:name=".UserProfileActivity" />
         <activity android:name=".AddRestroomActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
