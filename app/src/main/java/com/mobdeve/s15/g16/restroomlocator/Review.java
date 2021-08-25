@@ -9,7 +9,7 @@ public class Review {
     private String restroomId;
     private String startTime;
     private String endTime;
-    private double fee;
+    private String fee;
     private String imageUri1;
     private String imageUri2;
     private String imageUri3;
@@ -19,7 +19,7 @@ public class Review {
 
     }
 
-    public Review(String userId, String restroomId, String startTime, String endTime, double fee, String imageUri1, String imageUri2, String imageUri3, String remarks) {
+    public Review(String userId, String restroomId, String startTime, String endTime, String fee, String imageUri1, String imageUri2, String imageUri3, String remarks) {
         this.userId = userId;
         this.restroomId = restroomId;
         this.startTime = startTime;
@@ -71,11 +71,11 @@ public class Review {
         this.endTime = endTime;
     }
 
-    public double getFee() {
+    public String getFee() {
         return fee;
     }
 
-    public void setFee(double fee) {
+    public void setFee(String fee) {
         this.fee = fee;
     }
 
