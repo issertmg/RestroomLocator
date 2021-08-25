@@ -63,7 +63,8 @@
         app:menu="@menu/navigation_menu"
         android:layout_gravity="start"
         app:headerLayout="@layout/navigation_header"
-        android:id="@+id/nv">
+        android:id="@+id/nv"
+        android:theme="@style/NavDrawerTextStyle">
 
     </com.google.android.material.navigation.NavigationView>
 

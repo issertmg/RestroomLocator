@@ -240,6 +240,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         nv = (NavigationView)findViewById(R.id.nv);
+        nv.setItemIconTintList(null);
         nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
