@@ -1,6 +1,9 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
+import android.net.Uri;
+
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -62,6 +65,17 @@ public class MyFirestoreReferences {
             commentsRef = getFirestoreInstance().collection(COMMENTS_COLLECTION);
         }
         return commentsRef;
+    }
+
+    public static StorageReference getStorageReferenceInstance() {
+        if (storageReferenceInstance == null) {
+            storageReferenceInstance = FirebaseStorage.getInstance().getReference();
+        }
+        return storageReferenceInstance;
+    }
+
+    public static String generateNewImagePath(DocumentReference reviewRef, Uri imageUri) {
+        return "images/" + reviewRef.getId() + "-" + imageUri.getLastPathSegment();
     }
 
 }
