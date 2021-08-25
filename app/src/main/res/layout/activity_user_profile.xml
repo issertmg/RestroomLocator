@@ -26,7 +26,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvUsername"
         android:layout_marginTop="20dp"
         android:text="Account age"
-        android:textSize="16dp"
+        android:textSize="14sp"
         android:textStyle="bold"/>
 
     <TextView
@@ -37,7 +37,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvAge"
         android:layout_marginTop="10dp"
         android:text="AGEVALUE"
-        android:textSize="16dp"/>
+        android:textSize="14sp"/>
 
     <TextView
         android:id="@+id/tvNReviews"
@@ -47,7 +47,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvAgeValue"
         android:layout_marginTop="20dp"
         android:text="Number of reviews made"
-        android:textSize="16dp"
+        android:textSize="14sp"
         android:textStyle="bold"/>
 
     <TextView
@@ -58,6 +58,6 @@
         app:layout_constraintTop_toBottomOf="@id/tvNReviews"
         android:layout_marginTop="10dp"
         android:text="NREVIEWVALUE"
-        android:textSize="16dp"/>
+        android:textSize="14sp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
