@@ -1,6 +1,5 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -10,17 +9,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etvUsername, etvPassword;
     private Button btnLogin, btnSignUp, btnGuest;
-
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,33 +41,26 @@ public class LoginActivity extends AppCompatActivity {
                 login();
             }
         });
-
-        mAuth = FirebaseAuth.getInstance();
     }
 
     private void login() {
-        String email = etvUsername.getText().toString() + SignUpActivity.DOMAIN;
+        String username = etvUsername.getText().toString();
         String password = etvPassword.getText().toString();
 
-        // TODO show animation/dialog while getting info from firebase
+        boolean isValidUsername = (username.length() >= 3 && username.length() <= 20);
+        boolean isValidPassword = (password.length() >= 8);
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success
-                            Toast.makeText(LoginActivity.this, "Login successful.",
-                                    Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(LoginActivity.this, ViewRestroomsNearbyActivity.class));
-                            finish();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-                });
+        if (!isValidUsername) {
+            Toast.makeText(this, "Error: Username should be 3 to 20 characters in length.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else if (!isValidPassword) {
+            Toast.makeText(this, "Error: Password must be at least 8 characters in length.",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else {
+            // Sign in user
+            MyFirestoreReferences.signInUserAccount(username, password, this);
+        }
     }
 }

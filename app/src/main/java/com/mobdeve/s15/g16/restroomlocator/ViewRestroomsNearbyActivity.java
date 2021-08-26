@@ -1,6 +1,7 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -68,9 +71,6 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     private MapView map = null;
     IMapController mapController;
 
-    public static final String LATITUDE = "LATITUDE";
-    public static final String LONGITUDE = "LONGITUDE";
-
     // For getting GPS location
     private static LocationManager locationManager;
     private static final int REQUEST_CHECK_SETTINGS = 111;
@@ -89,6 +89,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     private MapEventsOverlay newRestroomEventsOverlay;
     private Marker addPin;
     private boolean isAddRestroomMode;
+
+
 
 
     //Floating action buttons
@@ -127,9 +129,9 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
                     setAddMyLocationMode();
                     sb.dismiss();
                     Intent i = new Intent(ViewRestroomsNearbyActivity.this, AddRestroomActivity.class);
-                    i.putExtra(LATITUDE, addPin.getPosition().getLatitude());
-                    i.putExtra(LONGITUDE, addPin.getPosition().getLongitude());
-                    startActivity(i);
+                    i.putExtra(IntentKeys.LATITUDE_KEY, addPin.getPosition().getLatitude());
+                    i.putExtra(IntentKeys.LONGITUDE_KEY, addPin.getPosition().getLongitude());
+                    addRestroomResultLauncher.launch(i);
                 }
                 else {
                     setAddRestroomMode();
@@ -387,6 +389,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("MissingPermission")
     protected void getLocationOnce() {
 
         // Create the location request to start receiving updates
@@ -402,11 +405,10 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         LocationSettingsRequest locationSettingsRequest = builder.build();
 
         // Check whether location settings are satisfied
-        // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
         SettingsClient settingsClient = LocationServices.getSettingsClient(this);
         settingsClient.checkLocationSettings(locationSettingsRequest);
 
-        // new Google API SDK v11 uses getFusedLocationProviderClient(this)
+
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
                     @Override
                     public void onLocationResult(LocationResult locationResult) {
@@ -532,4 +534,34 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         sb.show();
         isAddRestroomMode = true;
     }
+
+    private ActivityResultLauncher<Intent> addRestroomResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // TODO
+                        String restroomId = result.getData().getStringExtra(IntentKeys.RESTROOM_ID_KEY);
+                        double latitude = result.getData().getDoubleExtra(IntentKeys.LATITUDE_KEY, 0.0);
+                        double longitude = result.getData().getDoubleExtra(IntentKeys.LONGITUDE_KEY, 0.0);
+
+                        Marker m = new Marker(map);
+                        //m.setId(restroomId);
+                        m.setPosition(new GeoPoint(latitude, longitude));
+                        m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                                Intent i = new Intent(ViewRestroomsNearbyActivity.this, ViewReviewsActivity.class);
+                                i.putExtra(IntentKeys.RESTROOM_ID_KEY, restroomId);
+                                startActivity(i);
+                                return true;
+                            }
+                        });
+                        map.getOverlays().add(m);
+                        map.invalidate();
+                    }
+                }
+            }
+    );
 }

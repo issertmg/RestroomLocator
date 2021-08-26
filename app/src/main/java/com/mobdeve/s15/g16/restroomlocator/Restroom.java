@@ -1,5 +1,7 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
 import com.google.firebase.firestore.DocumentId;
 
 public class Restroom {
@@ -8,6 +10,7 @@ public class Restroom {
     private String name;
     private double latitude;
     private double longitude;
+    private String geohash;
 
     public Restroom() {
 
@@ -17,6 +20,7 @@ public class Restroom {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.geohash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(latitude, longitude));
     }
 
     public String getId() {
@@ -49,5 +53,13 @@ public class Restroom {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getGeohash() {
+        return geohash;
+    }
+
+    public void setGeohash(String geohash) {
+        this.geohash = geohash;
     }
 }

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,6 +48,7 @@ public class AddRestroomActivity extends AppCompatActivity {
     public final String TAG = "AddRestroomActivity";
 
     // For storing location from intent
+    private String restroomId;
     private double latitude;
     private double longitude;
 
@@ -111,10 +113,6 @@ public class AddRestroomActivity extends AppCompatActivity {
 
         padding_px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding_dp, AddRestroomActivity.this.getResources().getDisplayMetrics());
 
-        // get location from intent
-        latitude = getIntent().getDoubleExtra(ViewRestroomsNearbyActivity.LATITUDE, 0.0);
-        longitude = getIntent().getDoubleExtra(ViewRestroomsNearbyActivity.LONGITUDE, 0.0);
-
         // initializing views
         tvStartTime = findViewById(R.id.tvOperatingStart);
         tvEndTime = findViewById(R.id.tvOperatingEnd);
@@ -126,7 +124,15 @@ public class AddRestroomActivity extends AppCompatActivity {
         ibImgTwo = findViewById(R.id.ibImgTwo);
         ibImgThree = findViewById(R.id.ibImgThree);
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        // get location from intent
+        restroomId = getIntent().getStringExtra(IntentKeys.RESTROOM_ID_KEY);
+        latitude = getIntent().getDoubleExtra(IntentKeys.LATITUDE_KEY, 0.0);
+        longitude = getIntent().getDoubleExtra(IntentKeys.LONGITUDE_KEY, 0.0);
+
+        // hide restroom name field if restroom location already exists
+        if (restroomId != null) {
+            etvName.setVisibility(View.GONE);
+        }
 
         // making TimePicker dialog pop up
         tvStartTime.setOnClickListener(new View.OnClickListener() {
@@ -211,15 +217,9 @@ public class AddRestroomActivity extends AppCompatActivity {
         });
 
         // submitting a review
-        // TODO: resolve authentication issues; currently using anonymous for testing
-        mAuth.signInAnonymously().addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
-            @Override
-            public void onSuccess(AuthResult authResult) {
-                btnAdd.setOnClickListener(new View.OnClickListener() {
+        btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // create review
-                        // TODO: properly get userId and restroomId
 
                         // check which images are null
                         Boolean imgOneIsNull = imageUriOne == null;
@@ -246,78 +246,66 @@ public class AddRestroomActivity extends AppCompatActivity {
                         else
                             tempImgThree = imageUriThree.toString();
 
-                        Review r = new Review(
-                            "xxxxxxxxxxxxxxxxxxxx",
-                            "xxxxxxxxxxxxxxxxxxxx",
-                            tvStartTime.getText().toString(),
-                            tvEndTime.getText().toString(),
-                            etvPrice.getText().toString(),
-                            tempImgOne,
-                            tempImgTwo,
-                            tempImgThree,
-                            etvRemarks.getText().toString()
-                        );
-
-                        // get Reviews collection reference
-                        CollectionReference reviewsRef = MyFirestoreReferences.getReviewCollectionReference();
-
-                        // add review
-                        Task t1 = reviewsRef.add(r)
-                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                @Override
-                                public void onSuccess(DocumentReference documentReference) {
+                        // Get user id
+                        String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
 
 
-                                    // at least one image was selected, upload images to Storage
-                                    if(!(imgOneIsNull && imgTwoIsNull && imgThreeIsNull)){
-                                        // upload the images
-                                        if(!imgOneIsNull){
-                                            StorageReference imageRefOne = MyFirestoreReferences.getStorageReferenceInstance()
-                                                    .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriOne));
-                                            imageRefOne.putFile(imageUriOne)
-                                                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                        @Override
-                                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                            Log.w(TAG, "imgOne upload successful");
-                                                        }
-                                                    });
-                                        };
+                        if (restroomId == null) {
 
-                                        if(!imgTwoIsNull){
-                                            StorageReference imageRefTwo = MyFirestoreReferences.getStorageReferenceInstance()
-                                                    .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriTwo));
-                                            imageRefTwo.putFile(imageUriTwo)
-                                                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                        @Override
-                                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                            Log.w(TAG, "imgTwo upload successful");
-                                                        }
-                                                    });
-                                        }
+                            Restroom location = new Restroom(
+                                    etvName.getText().toString(),
+                                    latitude,
+                                    longitude
+                            );
 
-                                        if(!imgThreeIsNull){
-                                            StorageReference imageRefThree = MyFirestoreReferences.getStorageReferenceInstance()
-                                                    .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriThree));
-                                            imageRefThree.putFile(imageUriThree)
-                                                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                        @Override
-                                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                            Log.w(TAG, "imgThree upload successful");
-                                                        }
-                                                    });
-                                        }
-                                    }
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(Exception e) {
-                                    Log.w(TAG, "Error adding document", e);
-                                }
-                            });
+                            Review review = new Review(
+                                    userId,
+                                    "",
+                                    tvStartTime.getText().toString(),
+                                    tvEndTime.getText().toString(),
+                                    etvPrice.getText().toString(),
+                                    tempImgOne,
+                                    tempImgTwo,
+                                    tempImgThree,
+                                    etvRemarks.getText().toString()
+                            );
+
+                            MyFirestoreReferences.createRestroomLocation(
+                                    location,
+                                    review,
+                                    imgOneIsNull,
+                                    imgTwoIsNull,
+                                    imgThreeIsNull,
+                                    imageUriOne,
+                                    imageUriTwo,
+                                    imageUriThree,
+                                    AddRestroomActivity.this);
+                        }
+                        else {
+
+                            Review review = new Review(
+                                    userId,
+                                    restroomId,
+                                    tvStartTime.getText().toString(),
+                                    tvEndTime.getText().toString(),
+                                    etvPrice.getText().toString(),
+                                    tempImgOne,
+                                    tempImgTwo,
+                                    tempImgThree,
+                                    etvRemarks.getText().toString()
+                            );
+
+                            MyFirestoreReferences.createReview(
+                                    review,
+                                    imgOneIsNull,
+                                    imgTwoIsNull,
+                                    imgThreeIsNull,
+                                    imageUriOne,
+                                    imageUriTwo,
+                                    imageUriThree,
+                                    AddRestroomActivity.this);
+                        }
                     }
-                });
-            }
         });
     }
 }
