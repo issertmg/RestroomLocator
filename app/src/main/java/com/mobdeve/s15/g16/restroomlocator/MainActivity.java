@@ -28,23 +28,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DocumentReference docRef = FirebaseFirestore.getInstance()
-                .collection(MyFirestoreReferences.USERS_COLLECTION)
-                .document("UEcwY6fcawPYbtU6zbrYl2DvQ7r1");
-        docRef.get().addOnCompleteListener(this, new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot ref = task.getResult();
-                    Log.d("ID", ref.getId());
-                    Log.d("USERNAME", ref.get(MyFirestoreReferences.USERNAME_FIELD).toString());
-                } else {
-
-                }
-            }
-        });
-
-
         //FOR TESTING:
         Intent i = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(i);
