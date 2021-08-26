@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etvUsername, etvPassword;
@@ -41,6 +44,15 @@ public class LoginActivity extends AppCompatActivity {
                 login();
             }
         });
+
+        // Check if user is signed-in
+        FirebaseUser user = MyFirestoreReferences.getAuthInstance().getCurrentUser();
+
+        if (user != null) {
+            startActivity(new Intent(LoginActivity.this, ViewRestroomsNearbyActivity.class));
+            finish();
+        }
+
     }
 
     private void login() {
