@@ -10,10 +10,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQueryBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -24,15 +28,23 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MyFirestoreReferences {
     // All instances of Firestore and Storage
@@ -266,6 +278,10 @@ public class MyFirestoreReferences {
                                                 Uri imageUriTwo,
                                                 Uri imageUriThree,
                                                 AddRestroomActivity activity) {
+
+        String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(location.getLatitude(), location.getLongitude()));
+        location.setGeohash(hash);
+
         // Add Location first to db
         getRestroomCollectionReference().add(location)
                 .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -460,6 +476,74 @@ public class MyFirestoreReferences {
                             activity.setTvUsername(username);
                             activity.setTvAgeValue(sb.toString().trim());
                         }
+                    }
+                });
+    }
+
+    public static void displayNearbyRestroomLocations(GeoPoint p, MapView map, ViewRestroomsNearbyActivity activity) {
+        GeoLocation center = new GeoLocation(p.getLatitude(), p.getLongitude());
+        double radiusInM = 500;
+
+        // Each item in 'bounds' represents a startAt/endAt pair. We have to issue
+        // a separate query for each pair. There can be up to 9 pairs of bounds
+        // depending on overlap, but in most cases there are 4.
+        List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusInM);
+        final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+        for (GeoQueryBounds b : bounds) {
+            Query q = getRestroomCollectionReference()
+                    .orderBy("geohash")
+                    .startAt(b.startHash)
+                    .endAt(b.endHash);
+
+            tasks.add(q.get());
+        }
+
+        // Collect all the query results together into a single list
+        Tasks.whenAllComplete(tasks)
+                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<List<Task<?>>> t) {
+                        List<Restroom> matchingDocs = new ArrayList<>();
+
+                        for (Task<QuerySnapshot> task : tasks) {
+                            QuerySnapshot snap = task.getResult();
+                            for (DocumentSnapshot doc : snap.getDocuments()) {
+                                Restroom r = doc.toObject(Restroom.class);
+
+                                // We have to filter out a few false positives due to GeoHash
+                                // accuracy, but most will match
+                                GeoLocation docLocation = new GeoLocation(r.getLatitude(), r.getLongitude());
+                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center);
+                                if (distanceInM <= radiusInM) {
+                                    matchingDocs.add(r);
+                                }
+                            }
+                        }
+                        // remove previous restroom pins
+                        activity.removePreviousRestroomMarkers();
+
+                        // matchingDocs contains the results
+                        for (Restroom r : matchingDocs) {
+                            Marker m = new Marker(map);
+                            m.setIcon(activity.getResources().getDrawable(R.drawable.ic_restroom_location));
+                            m.setPosition(new GeoPoint(r.getLatitude(),r.getLongitude()));
+                            m.setVisible(true);
+                            m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                                @Override
+                                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                                    //Intent i = new Intent(activity, ViewReviewDetailsActivity.class);
+                                    //i.putExtra(IntentKeys.RESTROOM_ID_KEY, r.getId());
+                                    //activity.startActivity(i);
+                                    Toast.makeText(activity,
+                                            r.getId(), Toast.LENGTH_LONG).show();
+                                    return true;
+                                }
+                            });
+                            activity.addMarkerToList(m);
+                            map.getOverlayManager().add(m);
+                        }
+                        Log.d("overlay count: ", "" + map.getOverlays().size());
+                        map.invalidate();
                     }
                 });
     }

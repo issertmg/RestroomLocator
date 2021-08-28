@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -62,12 +61,12 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
-    private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private MapView map = null;
     IMapController mapController;
 
@@ -90,9 +89,6 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     private Marker addPin;
     private boolean isAddRestroomMode;
 
-
-
-
     //Floating action buttons
     FloatingActionButton btnCurrentLocation, btnAddReview;
 
@@ -101,6 +97,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     private NavigationView nv;
     private CoordinatorLayout cl;
     private Snackbar sb;
+
+    private List<Marker> markers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +172,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
         //Initialize user pin
         myPin = new Marker(map);
+        myPin.setIcon(getResources().getDrawable(R.drawable.ic_my_location));
         myPin.setVisible(false);
         map.getOverlayManager().add(myPin);
 
@@ -181,15 +180,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         final MapEventsReceiver myLocationReceiver = new MapEventsReceiver(){
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                myPin.setVisible(true);
-                myPin.setPosition(p);
-                if (accuracyOverlay != null) {
-                    map.getOverlays().remove(accuracyOverlay);
-                    map.invalidate();
-                }
-                accuracyOverlay = new AccuracyOverlay(p, 500);
-                map.getOverlays().add(accuracyOverlay);
-                map.invalidate();
+                MyFirestoreReferences.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
+                showPin(p);
                 return false;
             }
             @Override
@@ -228,8 +220,19 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         newRestroomEventsOverlay = new MapEventsOverlay(newRestroomReceiver);
 
         isAddRestroomMode = false;
+        markers = new ArrayList<>();
 
         //pinCurrentLocationToMap();
+    }
+
+    public void addMarkerToList(Marker m) {
+        this.markers.add(m);
+    }
+
+    public void removePreviousRestroomMarkers() {
+        for (Marker m : this.markers)
+            map.getOverlays().remove(m);
+        this.markers.clear();
     }
 
     private void initializeNavigationDrawer() {
@@ -427,10 +430,16 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         // Create GeoPoint from location
         GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
 
+        MyFirestoreReferences.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
+
         //Zoom map to current location
         mapController.setZoom(17.5);
         mapController.setCenter(p);
 
+        showPin(p);
+    }
+
+    public void showPin(GeoPoint p) {
         //Pin current location on map
         myPin.setVisible(true);
         myPin.setPosition(p);
