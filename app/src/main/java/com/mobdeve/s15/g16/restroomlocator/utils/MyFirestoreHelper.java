@@ -304,34 +304,45 @@ public class MyFirestoreHelper {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            User user = task.getResult().toObject(User.class);
-                            String username = user.getUsername();
-                            Date today = new Date();
-                            Date date = user.getDateCreated();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    User user = task.getResult().toObject(User.class);
+                                    String username = user.getUsername();
+                                    Date today = new Date();
+                                    Date date = user.getDateCreated();
 
-                            LocalDate locToday = today.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
-                            LocalDate locDate = date.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+                                    LocalDate locToday = today.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+                                    LocalDate locDate = date.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
 
-                            Period p = Period.between(locDate,locToday);
-                            int years = p.getYears();
-                            int months = p.getMonths();
-                            int days = p.getDays();
+                                    Period p = Period.between(locDate,locToday);
+                                    int years = p.getYears();
+                                    int months = p.getMonths();
+                                    int days = p.getDays();
 
-                            StringBuilder sb = new StringBuilder();
+                                    StringBuilder sb = new StringBuilder();
 
-                            if (years != 0)
-                                sb.append(Integer.toString(years) + "y ");
-                            if (months != 0)
-                                sb.append(Integer.toString(months) + "m ");
-                            if (days != 0)
-                                sb.append(Integer.toString(days) + "d");
+                                    if (years != 0)
+                                        sb.append(Integer.toString(years) + "y ");
+                                    if (months != 0)
+                                        sb.append(Integer.toString(months) + "m ");
+                                    if (days != 0)
+                                        sb.append(Integer.toString(days) + "d");
 
-                            if (years == 0 && months == 0 && days == 0) {
-                                sb.append(Integer.toString(1) + "d");
-                            }
+                                    if (years == 0 && months == 0 && days == 0) {
+                                        sb.append(Integer.toString(1) + "d");
+                                    }
 
-                            activity.setTvUsername(username);
-                            activity.setTvAgeValue(sb.toString().trim());
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            activity.setTvUsername(username);
+                                            activity.setTvAgeValue(sb.toString().trim());
+                                        }
+                                    });
+
+                                }
+                            }).start();
                         }
                     }
                 });
@@ -360,46 +371,61 @@ public class MyFirestoreHelper {
                 .addOnCompleteListener(activity, new OnCompleteListener<List<Task<?>>>() {
                     @Override
                     public void onComplete(@NonNull Task<List<Task<?>>> t) {
-                        List<Restroom> matchingDocs = new ArrayList<>();
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<Restroom> matchingDocs = new ArrayList<>();
 
-                        for (Task<QuerySnapshot> task : tasks) {
-                            QuerySnapshot snap = task.getResult();
-                            for (DocumentSnapshot doc : snap.getDocuments()) {
-                                Restroom r = doc.toObject(Restroom.class);
+                                for (Task<QuerySnapshot> task : tasks) {
+                                    QuerySnapshot snap = task.getResult();
+                                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                                        Restroom r = doc.toObject(Restroom.class);
 
-                                // We have to filter out a few false positives due to GeoHash
-                                // accuracy, but most will match
-                                GeoLocation docLocation = new GeoLocation(r.getLatitude(), r.getLongitude());
-                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center);
-                                if (distanceInM <= radiusInM) {
-                                    matchingDocs.add(r);
+                                        // We have to filter out a few false positives due to GeoHash
+                                        // accuracy, but most will match
+                                        GeoLocation docLocation = new GeoLocation(r.getLatitude(), r.getLongitude());
+                                        double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center);
+                                        if (distanceInM <= radiusInM) {
+                                            matchingDocs.add(r);
+                                        }
+                                    }
                                 }
+                                // remove previous restroom pins
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        activity.removePreviousRestroomMarkers();
+                                    }
+                                });
+
+                                // matchingDocs contains the results
+                                for (Restroom r : matchingDocs) {
+                                    Marker m = new Marker(map);
+                                    m.setIcon(activity.getResources().getDrawable(R.drawable.ic_restroom_location));
+                                    m.setPosition(new GeoPoint(r.getLatitude(),r.getLongitude()));
+                                    m.setVisible(true);
+                                    m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                                        @Override
+                                        public boolean onMarkerClick(Marker marker, MapView mapView) {
+                                            //Intent i = new Intent(activity, ViewReviewDetailsActivity.class);
+                                            //i.putExtra(IntentKeys.RESTROOM_ID_KEY, r.getId());
+                                            //activity.startActivity(i);
+                                            Toast.makeText(activity,
+                                                    r.getId(), Toast.LENGTH_LONG).show();
+                                            return true;
+                                        }
+                                    });
+                                    activity.addMarkerToList(m);
+                                    map.getOverlayManager().add(m);
+                                }
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        map.invalidate();
+                                    }
+                                });
                             }
-                        }
-                        // remove previous restroom pins
-                        activity.removePreviousRestroomMarkers();
-
-                        // matchingDocs contains the results
-                        for (Restroom r : matchingDocs) {
-                            Marker m = new Marker(map);
-                            m.setIcon(activity.getResources().getDrawable(R.drawable.ic_restroom_location));
-                            m.setPosition(new GeoPoint(r.getLatitude(),r.getLongitude()));
-                            m.setVisible(true);
-                            m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                                @Override
-                                public boolean onMarkerClick(Marker marker, MapView mapView) {
-                                    //Intent i = new Intent(activity, ViewReviewDetailsActivity.class);
-                                    //i.putExtra(IntentKeys.RESTROOM_ID_KEY, r.getId());
-                                    //activity.startActivity(i);
-                                    Toast.makeText(activity,
-                                            r.getId(), Toast.LENGTH_LONG).show();
-                                    return true;
-                                }
-                            });
-                            activity.addMarkerToList(m);
-                            map.getOverlayManager().add(m);
-                        }
-                        map.invalidate();
+                        }).start();
                     }
                 });
     }

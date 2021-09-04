@@ -303,30 +303,6 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
 
-    private void later() {
-
-        //your items
-        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-        items.add(new OverlayItem("Title", "Description", new GeoPoint(14.5223829d,121.0212511d))); // Lat/Lon decimal degrees
-
-//the overlay
-        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(items,
-                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                    @Override
-                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        Toast.makeText(getApplicationContext(), "you clicked me!",
-                                Toast.LENGTH_LONG).show();
-                        return true;
-                    }
-                    @Override
-                    public boolean onItemLongPress(final int index, final OverlayItem item) {
-                        return false;
-                    }
-                }, ViewRestroomsNearbyActivity.this);
-        mOverlay.setFocusItemsOnTap(true);
-        map.getOverlays().add(mOverlay);
-    }
-
     private void askToEnableGPS() {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
