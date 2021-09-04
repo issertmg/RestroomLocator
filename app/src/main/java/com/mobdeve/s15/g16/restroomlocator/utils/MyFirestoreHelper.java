@@ -1,6 +1,7 @@
-package com.mobdeve.s15.g16.restroomlocator;
+package com.mobdeve.s15.g16.restroomlocator.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -24,21 +25,26 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mobdeve.s15.g16.restroomlocator.AddRestroomActivity;
+import com.mobdeve.s15.g16.restroomlocator.ChangePasswordActivity;
+import com.mobdeve.s15.g16.restroomlocator.LoginActivity;
+import com.mobdeve.s15.g16.restroomlocator.R;
+import com.mobdeve.s15.g16.restroomlocator.UserProfileActivity;
+import com.mobdeve.s15.g16.restroomlocator.ViewRestroomsNearbyActivity;
+import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
+import com.mobdeve.s15.g16.restroomlocator.models.Review;
+import com.mobdeve.s15.g16.restroomlocator.models.User;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
@@ -46,121 +52,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MyFirestoreReferences {
-    // All instances of Firestore and Storage
-    private static FirebaseFirestore firebaseFirestoreInstance = null;
-    private static FirebaseAuth firebaseAuthInstance = null;
-
-    private static StorageReference storageReferenceInstance = null;
-
-    private static CollectionReference usersRef = null;
-    private static CollectionReference restroomsRef = null;
-    private static CollectionReference reviewsRef = null;
-    private static CollectionReference commentsRef = null;
-
-
-
-    // Collection and document names
-    public final static String
-        USERS_COLLECTION = "Users",
-        RESTROOM_COLLECTION = "Restrooms",
-        REVIEWS_COLLECTION = "Reviews",
-        COMMENTS_COLLECTION = "Comments",
-
-        USERNAME_FIELD = "username",
-        DATECREATED_FIELD = "dateCreated",
-        USERID_FIELD = "userId",
-        RESTROOMID_FIELD = "restroomId",
-        STARTTIME_FIELD = "startTime",
-        ENDTIME_FIELD = "endTime",
-        FEE_FIELD = "fee",
-        IMAGEURI1_FIELD = "imageUri1",
-        IMAGEURI2_FIELD = "imageUri2",
-        IMAGEURI3_FIELD = "imageUri3",
-        REMARKS_FIELD = "remarks",
-        REVIEWID_FIELD = "reviewId",
-        MESSAGE_FIELD = "message",
-        TIMESTAMP_FIELD = "timestamp",
-        NAME_FIELD = "name",
-        LATITUDE_FIELD = "latitude",
-        LONGITUDE_FIELD = "longitude",
-        GEOHASH_FIELD = "geohash";
-
-    // Used in account creation
-    private static final String DOMAIN = "@restroom.locator.com";
-
-
-    public static FirebaseFirestore getFirestoreInstance() {
-        if(firebaseFirestoreInstance == null) {
-            firebaseFirestoreInstance = FirebaseFirestore.getInstance();
-        }
-        return firebaseFirestoreInstance;
-    }
-
-    public static FirebaseAuth getAuthInstance() {
-        if(firebaseAuthInstance == null) {
-            firebaseAuthInstance = FirebaseAuth.getInstance();
-        }
-        return firebaseAuthInstance;
-    }
-
-//    public static StorageReference getStorageReferenceInstance() {
-//        if (storageReferenceInstance == null) {
-//            storageReferenceInstance = FirebaseStorage.getInstance().getReference();
-//        }
-//        return storageReferenceInstance;
-//    }
-
-    public static CollectionReference getUserCollectionReference() {
-        if(usersRef == null) {
-            usersRef = getFirestoreInstance().collection(USERS_COLLECTION);
-        }
-        return usersRef;
-    }
-
-    public static CollectionReference getRestroomCollectionReference() {
-        if(restroomsRef == null) {
-            restroomsRef = getFirestoreInstance().collection(RESTROOM_COLLECTION);
-        }
-        return restroomsRef;
-    }
-
-    public static CollectionReference getReviewCollectionReference() {
-        if(reviewsRef == null) {
-            reviewsRef = getFirestoreInstance().collection(REVIEWS_COLLECTION);
-        }
-        return reviewsRef;
-    }
-
-    public static CollectionReference getCommentCollectionReference() {
-        if(commentsRef == null) {
-            commentsRef = getFirestoreInstance().collection(COMMENTS_COLLECTION);
-        }
-        return commentsRef;
-    }
-
-    public static StorageReference getStorageReferenceInstance() {
-        if (storageReferenceInstance == null) {
-            storageReferenceInstance = FirebaseStorage.getInstance().getReference();
-        }
-        return storageReferenceInstance;
-    }
-
-    public static String generateNewImagePath(DocumentReference reviewRef, Uri imageUri) {
-        return "images/" + reviewRef.getId() + "-" + imageUri.getLastPathSegment();
-    }
+public class MyFirestoreHelper {
 
     public static void createUserAccount(String username, String password, Activity activity) {
-        String email =  username + DOMAIN;
+        String email =  username + MyFirestoreReferences.DOMAIN;
 
-        getAuthInstance().createUserWithEmailAndPassword(email, password)
+        MyFirestoreReferences.getAuthInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign up successful
                             // Create document for User (write to db)
-                            FirebaseUser user = getAuthInstance().getCurrentUser();
+                            FirebaseUser user = MyFirestoreReferences.getAuthInstance().getCurrentUser();
                             MyFirestoreReferences.getUserCollectionReference()
                                     .document(user.getUid())
                                     .set(new User(username))
@@ -211,9 +115,9 @@ public class MyFirestoreReferences {
     }
 
     public static void signInUserAccount(String username, String password, LoginActivity activity) {
-        String email =  username + DOMAIN;
+        String email =  username + MyFirestoreReferences.DOMAIN;
 
-        getAuthInstance().signInWithEmailAndPassword(email, password)
+        MyFirestoreReferences.getAuthInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -234,7 +138,7 @@ public class MyFirestoreReferences {
     }
 
     public static void resetAccountPassword(String oldPassword, String newPassword, ChangePasswordActivity activity) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = MyFirestoreReferences.getAuthInstance().getCurrentUser();
 
         // Re-authenticate user
         AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
@@ -270,20 +174,20 @@ public class MyFirestoreReferences {
     }
 
     public static void createRestroomLocation(Restroom location,
-                                                Review review,
-                                                Boolean imgOneIsNull,
-                                                Boolean imgTwoIsNull,
-                                                Boolean imgThreeIsNull,
-                                                Uri imageUriOne,
-                                                Uri imageUriTwo,
-                                                Uri imageUriThree,
-                                                AddRestroomActivity activity) {
+                                              Review review,
+                                              Boolean imgOneIsNull,
+                                              Boolean imgTwoIsNull,
+                                              Boolean imgThreeIsNull,
+                                              Uri imageUriOne,
+                                              Uri imageUriTwo,
+                                              Uri imageUriThree,
+                                              AddRestroomActivity activity) {
 
         String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(location.getLatitude(), location.getLongitude()));
         location.setGeohash(hash);
 
         // Add Location first to db
-        getRestroomCollectionReference().add(location)
+        MyFirestoreReferences.getRestroomCollectionReference().add(location)
                 .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
@@ -302,7 +206,7 @@ public class MyFirestoreReferences {
                             activity.finish();
 
                             // Add Review to db
-                            getReviewCollectionReference().add(review)
+                            MyFirestoreReferences.getReviewCollectionReference().add(review)
                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
@@ -379,7 +283,7 @@ public class MyFirestoreReferences {
                                     AddRestroomActivity activity) {
 
         // Add Review to db
-        getReviewCollectionReference().add(review)
+        MyFirestoreReferences.getReviewCollectionReference().add(review)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
@@ -438,10 +342,10 @@ public class MyFirestoreReferences {
 
     }
 
-    public static void displayUserDetails(UserProfileActivity activity) {
-        String userId = getAuthInstance().getCurrentUser().getUid();
+    public static void displayUserDetails(Context context) {
+        String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
 
-        getUserCollectionReference().document(userId).get()
+        MyFirestoreReferences.getUserCollectionReference().document(userId).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
@@ -473,8 +377,8 @@ public class MyFirestoreReferences {
                                 sb.append(Integer.toString(1) + "d");
                             }
 
-                            activity.setTvUsername(username);
-                            activity.setTvAgeValue(sb.toString().trim());
+                            ((UserProfileActivity) context).setTvUsername(username);
+                            ((UserProfileActivity) context).setTvAgeValue(sb.toString().trim());
                         }
                     }
                 });
@@ -490,7 +394,7 @@ public class MyFirestoreReferences {
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusInM);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {
-            Query q = getRestroomCollectionReference()
+            Query q = MyFirestoreReferences.getRestroomCollectionReference()
                     .orderBy("geohash")
                     .startAt(b.startHash)
                     .endAt(b.endHash);

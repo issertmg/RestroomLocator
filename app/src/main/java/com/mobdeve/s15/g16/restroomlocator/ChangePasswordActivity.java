@@ -7,6 +7,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
+
 public class ChangePasswordActivity extends AppCompatActivity {
 
     private EditText etvOldPassword, etvNewPassword, etvConfirmPassword;
@@ -51,7 +54,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         }
         else {
             //Reset password
-            MyFirestoreReferences.resetAccountPassword(oldPassword, newPassword, this);
+            MyFirestoreHelper.resetAccountPassword(oldPassword, newPassword, this);
         }
     }
 

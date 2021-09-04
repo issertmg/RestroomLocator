@@ -46,6 +46,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mobdeve.s15.g16.restroomlocator.utils.AccuracyOverlay;
+import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -180,7 +184,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         final MapEventsReceiver myLocationReceiver = new MapEventsReceiver(){
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                MyFirestoreReferences.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
+                MyFirestoreHelper.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
                 showPin(p);
                 return false;
             }
@@ -430,7 +434,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         // Create GeoPoint from location
         GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
 
-        MyFirestoreReferences.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
+        MyFirestoreHelper.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
 
         //Zoom map to current location
         mapController.setZoom(17.5);

@@ -9,8 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -72,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         else {
             // Sign in user
-            MyFirestoreReferences.signInUserAccount(username, password, this);
+            MyFirestoreHelper.signInUserAccount(username, password, this);
         }
     }
 }

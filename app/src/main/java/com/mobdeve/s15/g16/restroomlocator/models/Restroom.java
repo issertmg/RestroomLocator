@@ -1,4 +1,4 @@
-package com.mobdeve.s15.g16.restroomlocator;
+package com.mobdeve.s15.g16.restroomlocator.models;
 
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;

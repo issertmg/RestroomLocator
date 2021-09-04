@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
+
 public class UserProfileActivity extends AppCompatActivity {
 
     private TextView tvUsername, tvAgeValue;
@@ -17,7 +20,7 @@ public class UserProfileActivity extends AppCompatActivity {
         tvUsername = findViewById(R.id.tvUsername);
         tvAgeValue = findViewById(R.id.tvAgeValue);
 
-        MyFirestoreReferences.displayUserDetails(this);
+        MyFirestoreHelper.displayUserDetails(this);
     }
 
     public void setTvUsername(String username) {

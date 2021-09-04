@@ -1,4 +1,4 @@
-package com.mobdeve.s15.g16.restroomlocator;
+package com.mobdeve.s15.g16.restroomlocator.utils;
 
 public class IntentKeys {
 

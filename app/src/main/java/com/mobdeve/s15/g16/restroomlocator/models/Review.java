@@ -1,4 +1,4 @@
-package com.mobdeve.s15.g16.restroomlocator;
+package com.mobdeve.s15.g16.restroomlocator.models;
 
 import com.google.firebase.firestore.DocumentId;
 

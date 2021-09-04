@@ -9,10 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -22,17 +20,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
+import com.mobdeve.s15.g16.restroomlocator.models.Review;
+import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
-import java.io.File;
 import java.util.Calendar;
 
 public class AddRestroomActivity extends AppCompatActivity {
@@ -270,7 +263,7 @@ public class AddRestroomActivity extends AppCompatActivity {
                                     etvRemarks.getText().toString()
                             );
 
-                            MyFirestoreReferences.createRestroomLocation(
+                            MyFirestoreHelper.createRestroomLocation(
                                     location,
                                     review,
                                     imgOneIsNull,
@@ -295,7 +288,7 @@ public class AddRestroomActivity extends AppCompatActivity {
                                     etvRemarks.getText().toString()
                             );
 
-                            MyFirestoreReferences.createReview(
+                            MyFirestoreHelper.createReview(
                                     review,
                                     imgOneIsNull,
                                     imgTwoIsNull,
