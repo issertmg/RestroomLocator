@@ -1,7 +1,6 @@
 package com.mobdeve.s15.g16.restroomlocator.utils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -35,6 +34,7 @@ import com.mobdeve.s15.g16.restroomlocator.AddRestroomActivity;
 import com.mobdeve.s15.g16.restroomlocator.ChangePasswordActivity;
 import com.mobdeve.s15.g16.restroomlocator.LoginActivity;
 import com.mobdeve.s15.g16.restroomlocator.R;
+import com.mobdeve.s15.g16.restroomlocator.SignUpActivity;
 import com.mobdeve.s15.g16.restroomlocator.UserProfileActivity;
 import com.mobdeve.s15.g16.restroomlocator.ViewRestroomsNearbyActivity;
 import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
@@ -54,7 +54,7 @@ import java.util.List;
 
 public class MyFirestoreHelper {
 
-    public static void createUserAccount(String username, String password, Activity activity) {
+    public static void createUserAccount(String username, String password, SignUpActivity activity) {
         String email =  username + MyFirestoreReferences.DOMAIN;
 
         MyFirestoreReferences.getAuthInstance().createUserWithEmailAndPassword(email, password)
@@ -68,7 +68,7 @@ public class MyFirestoreHelper {
                             MyFirestoreReferences.getUserCollectionReference()
                                     .document(user.getUid())
                                     .set(new User(username))
-                                    .addOnSuccessListener(new OnSuccessListener<Void>(){
+                                    .addOnSuccessListener(activity, new OnSuccessListener<Void>(){
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             FirebaseAuth.getInstance().signOut();
@@ -77,7 +77,7 @@ public class MyFirestoreHelper {
                                             activity.finish();
                                         }
                                     })
-                                    .addOnFailureListener(new OnFailureListener() {
+                                    .addOnFailureListener(activity, new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Toast.makeText(activity, "Account creation failed. Please check your internet connection and try again.",
@@ -143,13 +143,13 @@ public class MyFirestoreHelper {
         // Re-authenticate user
         AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
         user.reauthenticate(credential)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                .addOnCompleteListener(activity, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             // Change password
                             user.updatePassword(newPassword)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    .addOnCompleteListener(activity, new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
@@ -188,7 +188,7 @@ public class MyFirestoreHelper {
 
         // Add Location first to db
         MyFirestoreReferences.getRestroomCollectionReference().add(location)
-                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                .addOnCompleteListener(activity, new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         if (task.isSuccessful()) {
@@ -206,62 +206,15 @@ public class MyFirestoreHelper {
                             activity.finish();
 
                             // Add Review to db
-                            MyFirestoreReferences.getReviewCollectionReference().add(review)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            // at least one image was selected, upload images to Storage
-                                            if(!(imgOneIsNull && imgTwoIsNull && imgThreeIsNull)){
-                                                // upload the images
-                                                if(!imgOneIsNull){
-                                                    StorageReference imageRefOne = MyFirestoreReferences.getStorageReferenceInstance()
-                                                            .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriOne));
-                                                    imageRefOne.putFile(imageUriOne)
-                                                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                                    Log.w("ADD_REVIEW_ACTIVITY", "imgOne upload successful");
-                                                                }
-                                                            });
-                                                };
-
-                                                if(!imgTwoIsNull){
-                                                    StorageReference imageRefTwo = MyFirestoreReferences.getStorageReferenceInstance()
-                                                            .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriTwo));
-                                                    imageRefTwo.putFile(imageUriTwo)
-                                                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                                    Log.w("ADD_REVIEW_ACTIVITY", "imgTwo upload successful");
-                                                                }
-                                                            });
-                                                }
-
-                                                if(!imgThreeIsNull){
-                                                    StorageReference imageRefThree = MyFirestoreReferences.getStorageReferenceInstance()
-                                                            .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriThree));
-                                                    imageRefThree.putFile(imageUriThree)
-                                                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                                    Log.w("ADD_REVIEW_ACTIVITY", "imgThree upload successful");
-                                                                }
-                                                            });
-                                                }
-                                            }
-
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(activity,
-                                                    "Error adding review.",
-                                                    Toast.LENGTH_SHORT)
-                                                    .show();
-                                            Log.w("ADD_REVIEW_ACTIVITY", "Error adding document", e);
-                                        }
-                                    });
+                            createReview(
+                                    review,
+                                    imgOneIsNull,
+                                    imgTwoIsNull,
+                                    imgThreeIsNull,
+                                    imageUriOne,
+                                    imageUriTwo,
+                                    imageUriThree,
+                                    activity);
                         }
                         else {
                             Toast.makeText(activity,
@@ -284,7 +237,7 @@ public class MyFirestoreHelper {
 
         // Add Review to db
         MyFirestoreReferences.getReviewCollectionReference().add(review)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                .addOnSuccessListener(activity, new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         // at least one image was selected, upload images to Storage
@@ -294,7 +247,7 @@ public class MyFirestoreHelper {
                                 StorageReference imageRefOne = MyFirestoreReferences.getStorageReferenceInstance()
                                         .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriOne));
                                 imageRefOne.putFile(imageUriOne)
-                                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                        .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                 Log.w("ADD_REVIEW_ACTIVITY", "imgOne upload successful");
@@ -306,7 +259,7 @@ public class MyFirestoreHelper {
                                 StorageReference imageRefTwo = MyFirestoreReferences.getStorageReferenceInstance()
                                         .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriTwo));
                                 imageRefTwo.putFile(imageUriTwo)
-                                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                        .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                 Log.w("ADD_REVIEW_ACTIVITY", "imgTwo upload successful");
@@ -318,7 +271,7 @@ public class MyFirestoreHelper {
                                 StorageReference imageRefThree = MyFirestoreReferences.getStorageReferenceInstance()
                                         .child(MyFirestoreReferences.generateNewImagePath(documentReference, imageUriThree));
                                 imageRefThree.putFile(imageUriThree)
-                                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                        .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                 Log.w("ADD_REVIEW_ACTIVITY", "imgThree upload successful");
@@ -329,7 +282,7 @@ public class MyFirestoreHelper {
 
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
+                .addOnFailureListener(activity, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(activity,
@@ -342,11 +295,11 @@ public class MyFirestoreHelper {
 
     }
 
-    public static void displayUserDetails(Context context) {
+    public static void displayUserDetails(UserProfileActivity activity) {
         String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
 
         MyFirestoreReferences.getUserCollectionReference().document(userId).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                .addOnCompleteListener(activity, new OnCompleteListener<DocumentSnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -377,8 +330,8 @@ public class MyFirestoreHelper {
                                 sb.append(Integer.toString(1) + "d");
                             }
 
-                            ((UserProfileActivity) context).setTvUsername(username);
-                            ((UserProfileActivity) context).setTvAgeValue(sb.toString().trim());
+                            activity.setTvUsername(username);
+                            activity.setTvAgeValue(sb.toString().trim());
                         }
                     }
                 });
@@ -404,7 +357,7 @@ public class MyFirestoreHelper {
 
         // Collect all the query results together into a single list
         Tasks.whenAllComplete(tasks)
-                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+                .addOnCompleteListener(activity, new OnCompleteListener<List<Task<?>>>() {
                     @Override
                     public void onComplete(@NonNull Task<List<Task<?>>> t) {
                         List<Restroom> matchingDocs = new ArrayList<>();
@@ -446,7 +399,6 @@ public class MyFirestoreHelper {
                             activity.addMarkerToList(m);
                             map.getOverlayManager().add(m);
                         }
-                        Log.d("overlay count: ", "" + map.getOverlays().size());
                         map.invalidate();
                     }
                 });
