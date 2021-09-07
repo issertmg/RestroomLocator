@@ -1,6 +1,7 @@
 package com.mobdeve.s15.g16.restroomlocator.utils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +19,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -55,6 +57,12 @@ import java.util.List;
 public class MyFirestoreHelper {
 
     public static void createUserAccount(String username, String password, SignUpActivity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setView(R.layout.loading_dialog_layout);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         String email =  username + MyFirestoreReferences.DOMAIN;
 
         MyFirestoreReferences.getAuthInstance().createUserWithEmailAndPassword(email, password)
@@ -71,6 +79,7 @@ public class MyFirestoreHelper {
                                     .addOnSuccessListener(activity, new OnSuccessListener<Void>(){
                                         @Override
                                         public void onSuccess(Void aVoid) {
+                                            dialog.dismiss();
                                             FirebaseAuth.getInstance().signOut();
                                             Toast.makeText(activity, "Account successfully created.",
                                                     Toast.LENGTH_SHORT).show();
@@ -80,6 +89,7 @@ public class MyFirestoreHelper {
                                     .addOnFailureListener(activity, new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
+                                            dialog.dismiss();
                                             Toast.makeText(activity, "Account creation failed. Please check your internet connection and try again.",
                                                     Toast.LENGTH_SHORT).show();
                                             user.delete();
@@ -87,6 +97,8 @@ public class MyFirestoreHelper {
                                     });
 
                         } else {
+                            dialog.dismiss();
+
                             // If sign up fails, display a message to the user.
                             String errorCode = ((FirebaseAuthException) task.getException()).getErrorCode();
 
@@ -115,12 +127,19 @@ public class MyFirestoreHelper {
     }
 
     public static void signInUserAccount(String username, String password, LoginActivity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setView(R.layout.loading_dialog_layout);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         String email =  username + MyFirestoreReferences.DOMAIN;
 
         MyFirestoreReferences.getAuthInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        dialog.dismiss();
                         if (task.isSuccessful()) {
                             // Sign in success
                             Toast.makeText(activity, "Login successful.",
@@ -138,6 +157,12 @@ public class MyFirestoreHelper {
     }
 
     public static void resetAccountPassword(String oldPassword, String newPassword, ChangePasswordActivity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setView(R.layout.loading_dialog_layout);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         FirebaseUser user = MyFirestoreReferences.getAuthInstance().getCurrentUser();
 
         // Re-authenticate user
@@ -152,18 +177,19 @@ public class MyFirestoreHelper {
                                     .addOnCompleteListener(activity, new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
+                                            dialog.dismiss();
                                             if (task.isSuccessful()) {
+                                                activity.clearFields();
                                                 Toast.makeText(activity,
                                                         "Password changed successfully.",
                                                         Toast.LENGTH_SHORT)
                                                         .show();
-                                                activity.clearFields();
-
                                             }
                                         }
                                     });
                         }
                         else {
+                            dialog.dismiss();
                             Toast.makeText(activity,
                                     "Password changed failed. Old password field may be incorrect.",
                                     Toast.LENGTH_SHORT)
@@ -296,6 +322,12 @@ public class MyFirestoreHelper {
     }
 
     public static void displayUserDetails(UserProfileActivity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setView(R.layout.loading_dialog_layout);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
 
         MyFirestoreReferences.getUserCollectionReference().document(userId).get()
@@ -338,6 +370,7 @@ public class MyFirestoreHelper {
                                         public void run() {
                                             activity.setTvUsername(username);
                                             activity.setTvAgeValue(sb.toString().trim());
+                                            dialog.dismiss();
                                         }
                                     });
 
@@ -348,7 +381,8 @@ public class MyFirestoreHelper {
                 });
     }
 
-    public static void displayNearbyRestroomLocations(GeoPoint p, MapView map, ViewRestroomsNearbyActivity activity) {
+    public static void displayNearbyRestroomLocations(GeoPoint p, MapView map, AlertDialog dialog, ViewRestroomsNearbyActivity activity) {
+
         GeoLocation center = new GeoLocation(p.getLatitude(), p.getLongitude());
         double radiusInM = 500;
 
@@ -359,7 +393,7 @@ public class MyFirestoreHelper {
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
         for (GeoQueryBounds b : bounds) {
             Query q = MyFirestoreReferences.getRestroomCollectionReference()
-                    .orderBy("geohash")
+                    .orderBy(MyFirestoreReferences.GEOHASH_FIELD)
                     .startAt(b.startHash)
                     .endAt(b.endHash);
 
@@ -412,7 +446,7 @@ public class MyFirestoreHelper {
                                             //activity.startActivity(i);
                                             Toast.makeText(activity,
                                                     r.getId(), Toast.LENGTH_LONG).show();
-                                            return true;
+                                            return false;
                                         }
                                     });
                                     activity.addMarkerToList(m);
@@ -422,6 +456,7 @@ public class MyFirestoreHelper {
                                     @Override
                                     public void run() {
                                         map.invalidate();
+                                        dialog.dismiss();
                                     }
                                 });
                             }

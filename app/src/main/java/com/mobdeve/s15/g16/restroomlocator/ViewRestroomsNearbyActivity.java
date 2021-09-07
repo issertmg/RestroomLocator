@@ -3,6 +3,7 @@ package com.mobdeve.s15.g16.restroomlocator;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -24,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.location.LocationManager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -49,7 +51,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mobdeve.s15.g16.restroomlocator.utils.AccuracyOverlay;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
-import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -58,11 +59,9 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.OverlayItem;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +87,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
     private MapEventsOverlay myLocationEventsOverlay;
     private Marker myPin;
     private AccuracyOverlay accuracyOverlay;
+    private AlertDialog dialog;
 
     private MapEventsOverlay newRestroomEventsOverlay;
     private Marker addPin;
@@ -142,13 +142,19 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
             }
         });
 
-        //TODO: make snackbar undismissable
         // Initialize snackbar
         cl = findViewById(R.id.snackbar_area);
         sb = Snackbar.make(cl, "", Snackbar.LENGTH_INDEFINITE);
         sb.setAction("CANCEL", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sb.dismiss();
+            }
+        });
+        sb.addCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                super.onDismissed(transientBottomBar, event);
                 setAddMyLocationMode();
             }
         });
@@ -178,13 +184,21 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         myPin = new Marker(map);
         myPin.setIcon(getResources().getDrawable(R.drawable.ic_my_location));
         myPin.setVisible(false);
-        map.getOverlayManager().add(myPin);
+        myPin.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                return false;
+            }
+        });
+        map.getOverlays().add(myPin);
 
-        // Initialize map listener for user pin
-        final MapEventsReceiver myLocationReceiver = new MapEventsReceiver(){
+        // Initialize map listener overlay for user pin
+        // add map listener overlay to index 0 of Map Overlays List
+        myLocationEventsOverlay = new MapEventsOverlay(new MapEventsReceiver(){
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                MyFirestoreHelper.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
+                dialog.show();
+                MyFirestoreHelper.displayNearbyRestroomLocations(p, map, dialog,ViewRestroomsNearbyActivity.this);
                 showPin(p);
                 return false;
             }
@@ -192,14 +206,20 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
             public boolean longPressHelper(GeoPoint p) {
                 return false;
             }
-        };
-        myLocationEventsOverlay = new MapEventsOverlay(myLocationReceiver);
-        map.getOverlays().add(myLocationEventsOverlay);
+        });
+        map.getOverlays().add(0, myLocationEventsOverlay);
 
         // Initialize add restroom pinpoint
         addPin = new Marker(map);
+        addPin.setIcon(getResources().getDrawable(R.drawable.ic_add_restroom));
         addPin.setVisible(false);
-        map.getOverlayManager().add(addPin);
+        addPin.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                return false;
+            }
+        });
+        map.getOverlays().add(addPin);
 
         // Initialize map listener for add restroom pin
         final MapEventsReceiver newRestroomReceiver = new MapEventsReceiver(){
@@ -225,6 +245,11 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
         isAddRestroomMode = false;
         markers = new ArrayList<>();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true); // if you want user to wait for some process to finish,
+        builder.setView(R.layout.loading_dialog_layout);
+        dialog = builder.create();
 
         //pinCurrentLocationToMap();
     }
@@ -374,6 +399,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")
     protected void getLocationOnce() {
+        dialog.show();
 
         // Create the location request to start receiving updates
         mLocationRequest = LocationRequest.create()
@@ -410,7 +436,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         // Create GeoPoint from location
         GeoPoint p = new GeoPoint(location.getLatitude(), location.getLongitude());
 
-        MyFirestoreHelper.displayNearbyRestroomLocations(p, map, ViewRestroomsNearbyActivity.this);
+        MyFirestoreHelper.displayNearbyRestroomLocations(p, map, dialog, ViewRestroomsNearbyActivity.this);
 
         //Zoom map to current location
         mapController.setZoom(17.5);
@@ -499,11 +525,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         // Hide addRestroom pin
         addPin.setVisible(false);
 
-        // Enable myLocationOverlay
-        map.getOverlays().add(myLocationEventsOverlay);
-
-        // Disable addRestroomOverlay
-        map.getOverlays().remove(newRestroomEventsOverlay);
+        // Replace addRestroomOverlay with  myLocationOverlay
+        map.getOverlays().set(0, myLocationEventsOverlay);
 
         map.invalidate();
         isAddRestroomMode = false;
@@ -513,11 +536,8 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         // Hide btnAddReview
         btnAddReview.setVisibility(View.GONE);
 
-        // Disable myLocationOverlay
-        map.getOverlays().remove(myLocationEventsOverlay);
-
-        // Enable addRestroomOverlay
-        map.getOverlays().add(newRestroomEventsOverlay);
+        // Replace myLocationOverlay with addRestroomOverlay
+        map.getOverlays().set(0, newRestroomEventsOverlay);
 
         sb.setText("Pin a location to add a restroom");
         sb.show();
