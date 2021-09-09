@@ -20,6 +20,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
@@ -29,7 +33,7 @@ import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 import java.util.Calendar;
 
 public class AddRestroomActivity extends AppCompatActivity {
-    private TextView tvStartTime, tvEndTime;
+    private TextView tvAddRestroom, tvStartTime, tvEndTime;
     private EditText etvName, etvPrice, etvRemarks;
     private ImageButton ibImgOne, ibImgTwo, ibImgThree;
     private Button btnAdd;
@@ -53,8 +57,6 @@ public class AddRestroomActivity extends AppCompatActivity {
                     if(result.getResultCode() == Activity.RESULT_OK){
                         Intent data = result.getData();
                         imageUriOne = data.getData();
-//                        String path = imageUriOne.getPath();
-//                        File file = new File(path);
 
                         ibImgOne.setImageURI(imageUriOne);
                         ibImgOne.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -71,8 +73,6 @@ public class AddRestroomActivity extends AppCompatActivity {
                     if(result.getResultCode() == Activity.RESULT_OK){
                         Intent data = result.getData();
                         imageUriTwo = data.getData();
-//                        String path = imageUri.getPath();
-//                        File file = new File(path);
 
                         ibImgTwo.setImageURI(imageUriTwo);
                         ibImgTwo.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -89,8 +89,6 @@ public class AddRestroomActivity extends AppCompatActivity {
                     if(result.getResultCode() == Activity.RESULT_OK){
                         Intent data = result.getData();
                         imageUriThree = data.getData();
-//                        String path = imageUri.getPath();
-//                        File file = new File(path);
 
                         ibImgThree.setImageURI(imageUriThree);
                         ibImgThree.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -107,6 +105,7 @@ public class AddRestroomActivity extends AppCompatActivity {
         padding_px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding_dp, AddRestroomActivity.this.getResources().getDisplayMetrics());
 
         // initializing views
+        tvAddRestroom = findViewById(R.id.tvAddRestroom);
         tvStartTime = findViewById(R.id.tvOperatingStart);
         tvEndTime = findViewById(R.id.tvOperatingEnd);
         etvName = findViewById(R.id.etvName);
@@ -121,6 +120,10 @@ public class AddRestroomActivity extends AppCompatActivity {
         restroomId = getIntent().getStringExtra(IntentKeys.RESTROOM_ID_KEY);
         latitude = getIntent().getDoubleExtra(IntentKeys.LATITUDE_KEY, 0.0);
         longitude = getIntent().getDoubleExtra(IntentKeys.LONGITUDE_KEY, 0.0);
+
+        // check if intent is for editing
+        boolean editing = getIntent().getBooleanExtra(IntentKeys.EDITING_KEY, false);
+        String reviewId = getIntent().getStringExtra(IntentKeys.REVIEW_ID);
 
         // hide restroom name field if restroom location already exists
         if (restroomId != null) {
@@ -210,95 +213,181 @@ public class AddRestroomActivity extends AppCompatActivity {
         });
 
         // submitting a review
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+        if(!editing){
+            btnAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                        // check which images are null
-                        Boolean imgOneIsNull = imageUriOne == null;
-                        Boolean imgTwoIsNull = imageUriTwo == null;
-                        Boolean imgThreeIsNull = imageUriThree == null;
+                    // check which images are null
+                    Boolean imgOneIsNull = imageUriOne == null;
+                    Boolean imgTwoIsNull = imageUriTwo == null;
+                    Boolean imgThreeIsNull = imageUriThree == null;
 
-                        // check for empty fields
-                        String tempImgOne;
-                        String tempImgTwo;
-                        String tempImgThree;
+                    // check for empty fields
+                    String tempImgOne;
+                    String tempImgTwo;
+                    String tempImgThree;
 
-                        if(imgOneIsNull)
-                            tempImgOne = "NOIMAGE";
-                        else
-                            tempImgOne = imageUriOne.toString();
+                    if(imgOneIsNull)
+                        tempImgOne = "NOIMAGE";
+                    else
+                        tempImgOne = imageUriOne.toString();
 
-                        if(imgTwoIsNull)
-                            tempImgTwo = "NOIMAGE";
-                        else
-                            tempImgTwo = imageUriTwo.toString();
+                    if(imgTwoIsNull)
+                        tempImgTwo = "NOIMAGE";
+                    else
+                        tempImgTwo = imageUriTwo.toString();
 
-                        if(imgThreeIsNull)
-                            tempImgThree = "NOIMAGE";
-                        else
-                            tempImgThree = imageUriThree.toString();
+                    if(imgThreeIsNull)
+                        tempImgThree = "NOIMAGE";
+                    else
+                        tempImgThree = imageUriThree.toString();
 
-                        // Get user id
-                        String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
+                    // Get user id
+                    String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
 
+                    if (restroomId == null) {
+                        Restroom location = new Restroom(
+                                etvName.getText().toString(),
+                                latitude,
+                                longitude
+                        );
 
-                        if (restroomId == null) {
+                        Review review = new Review(
+                                userId,
+                                "",
+                                tvStartTime.getText().toString(),
+                                tvEndTime.getText().toString(),
+                                etvPrice.getText().toString(),
+                                tempImgOne,
+                                tempImgTwo,
+                                tempImgThree,
+                                etvRemarks.getText().toString()
+                        );
 
-                            Restroom location = new Restroom(
-                                    etvName.getText().toString(),
-                                    latitude,
-                                    longitude
+                        MyFirestoreHelper.createRestroomLocation(
+                                location,
+                                review,
+                                imgOneIsNull,
+                                imgTwoIsNull,
+                                imgThreeIsNull,
+                                imageUriOne,
+                                imageUriTwo,
+                                imageUriThree,
+                                AddRestroomActivity.this);
+                    }
+                    else {
+                        Review review = new Review(
+                                userId,
+                                restroomId,
+                                tvStartTime.getText().toString(),
+                                tvEndTime.getText().toString(),
+                                etvPrice.getText().toString(),
+                                tempImgOne,
+                                tempImgTwo,
+                                tempImgThree,
+                                etvRemarks.getText().toString()
+                        );
+
+                        MyFirestoreHelper.createReview(
+                                review,
+                                imgOneIsNull,
+                                imgTwoIsNull,
+                                imgThreeIsNull,
+                                imageUriOne,
+                                imageUriTwo,
+                                imageUriThree,
+                                AddRestroomActivity.this);
+                    }
+                }
+            });
+        }
+        // editing a review
+        else{
+            // modify text fields appropriately
+            tvAddRestroom.setText("Edit restroom");
+            btnAdd.setText("Save changes");
+
+            // load Review details into the view
+            DocumentReference reviewRef = MyFirestoreReferences.getReviewCollectionReference().document(reviewId);
+            reviewRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        DocumentSnapshot document = task.getResult();
+                        if(document.exists()){
+                            tvStartTime.setText(document.getString(MyFirestoreReferences.STARTTIME_FIELD));
+                            tvEndTime.setText(document.getString(MyFirestoreReferences.ENDTIME_FIELD));
+                            etvPrice.setText(document.getString(MyFirestoreReferences.FEE_FIELD));
+                            etvRemarks.setText(document.getString(MyFirestoreReferences.REMARKS_FIELD));
+                            MyFirestoreHelper.downloadImageIntoImageView(
+                                    reviewId,
+                                    document.getString(MyFirestoreReferences.IMAGEURI1_FIELD),
+                                    document.getString(MyFirestoreReferences.IMAGEURI2_FIELD),
+                                    document.getString(MyFirestoreReferences.IMAGEURI3_FIELD),
+                                    ibImgOne,
+                                    ibImgTwo,
+                                    ibImgThree
                             );
-
-                            Review review = new Review(
-                                    userId,
-                                    "",
-                                    tvStartTime.getText().toString(),
-                                    tvEndTime.getText().toString(),
-                                    etvPrice.getText().toString(),
-                                    tempImgOne,
-                                    tempImgTwo,
-                                    tempImgThree,
-                                    etvRemarks.getText().toString()
-                            );
-
-                            MyFirestoreHelper.createRestroomLocation(
-                                    location,
-                                    review,
-                                    imgOneIsNull,
-                                    imgTwoIsNull,
-                                    imgThreeIsNull,
-                                    imageUriOne,
-                                    imageUriTwo,
-                                    imageUriThree,
-                                    AddRestroomActivity.this);
-                        }
-                        else {
-
-                            Review review = new Review(
-                                    userId,
-                                    restroomId,
-                                    tvStartTime.getText().toString(),
-                                    tvEndTime.getText().toString(),
-                                    etvPrice.getText().toString(),
-                                    tempImgOne,
-                                    tempImgTwo,
-                                    tempImgThree,
-                                    etvRemarks.getText().toString()
-                            );
-
-                            MyFirestoreHelper.createReview(
-                                    review,
-                                    imgOneIsNull,
-                                    imgTwoIsNull,
-                                    imgThreeIsNull,
-                                    imageUriOne,
-                                    imageUriTwo,
-                                    imageUriThree,
-                                    AddRestroomActivity.this);
                         }
                     }
-        });
+                }
+            });
+
+            btnAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // check which images are null
+                    Boolean imgOneIsNull = imageUriOne == null;
+                    Boolean imgTwoIsNull = imageUriTwo == null;
+                    Boolean imgThreeIsNull = imageUriThree == null;
+
+                    // check for empty fields
+                    String tempImgOne;
+                    String tempImgTwo;
+                    String tempImgThree;
+
+                    if(imgOneIsNull)
+                        tempImgOne = "NOIMAGE";
+                    else
+                        tempImgOne = imageUriOne.toString();
+
+                    if(imgTwoIsNull)
+                        tempImgTwo = "NOIMAGE";
+                    else
+                        tempImgTwo = imageUriTwo.toString();
+
+                    if(imgThreeIsNull)
+                        tempImgThree = "NOIMAGE";
+                    else
+                        tempImgThree = imageUriThree.toString();
+
+                    String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
+
+                    Review review = new Review(
+                            reviewId,
+                            userId,
+                            restroomId,
+                            tvStartTime.getText().toString(),
+                            tvEndTime.getText().toString(),
+                            etvPrice.getText().toString(),
+                            tempImgOne,
+                            tempImgTwo,
+                            tempImgThree,
+                            etvRemarks.getText().toString()
+                    );
+                    MyFirestoreHelper.editReview(
+                            review,
+                            imgOneIsNull,
+                            imgTwoIsNull,
+                            imgThreeIsNull,
+                            imageUriOne,
+                            imageUriTwo,
+                            imageUriThree,
+                            AddRestroomActivity.this
+                    );
+                }
+            });
+        }
     }
 }
