@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
@@ -30,6 +32,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mobdeve.s15.g16.restroomlocator.AddRestroomActivity;
@@ -42,6 +45,7 @@ import com.mobdeve.s15.g16.restroomlocator.ViewRestroomsNearbyActivity;
 import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.models.User;
+import com.squareup.picasso.Picasso;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -52,7 +56,9 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyFirestoreHelper {
 
@@ -319,6 +325,121 @@ public class MyFirestoreHelper {
                     }
                 });
 
+    }
+
+    public static void editReview(Review review,
+                                    Boolean imgOneIsNull,
+                                    Boolean imgTwoIsNull,
+                                    Boolean imgThreeIsNull,
+                                    Uri imageUriOne,
+                                    Uri imageUriTwo,
+                                    Uri imageUriThree,
+                                    AddRestroomActivity activity) {
+        DocumentReference reviewRef = MyFirestoreReferences.getReviewCollectionReference().document(review.getId());
+        Map<String, Object> values = new HashMap<>();
+
+        // store text values
+        values.put(MyFirestoreReferences.STARTTIME_FIELD, review.getStartTime());
+        values.put(MyFirestoreReferences.ENDTIME_FIELD, review.getEndTime());
+        values.put(MyFirestoreReferences.FEE_FIELD, review.getFee());
+        values.put(MyFirestoreReferences.REMARKS_FIELD, review.getRemarks());
+
+        // store image values and upload them
+        if(!imgOneIsNull){
+            values.put(MyFirestoreReferences.IMAGEURI1_FIELD, imageUriOne.toString());
+            StorageReference imageRefOne = MyFirestoreReferences.getStorageReferenceInstance()
+                    .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriOne));
+            imageRefOne.putFile(imageUriOne)
+                    .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.w("ADD_REVIEW_ACTIVITY", "imgOne upload successful");
+                        }
+                    });
+        };
+
+        if(!imgTwoIsNull){
+            values.put(MyFirestoreReferences.IMAGEURI2_FIELD, imageUriTwo.toString());
+            StorageReference imageRefTwo = MyFirestoreReferences.getStorageReferenceInstance()
+                    .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriTwo));
+            imageRefTwo.putFile(imageUriTwo)
+                    .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.w("ADD_REVIEW_ACTIVITY", "imgTwo upload successful");
+                        }
+                    });
+        }
+
+        if(!imgThreeIsNull){
+            values.put(MyFirestoreReferences.IMAGEURI3_FIELD, imageUriThree.toString());
+            StorageReference imageRefThree = MyFirestoreReferences.getStorageReferenceInstance()
+                    .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriThree));
+            imageRefThree.putFile(imageUriThree)
+                    .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.w("ADD_REVIEW_ACTIVITY", "imgThree upload successful");
+                        }
+                    });
+        }
+
+        reviewRef.update(values)
+        .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(Task<Void> task) {
+                // TODO: redirect somewhere
+                Log.d("MyFirestoreHelper", "update successful");
+            }
+        });
+    }
+
+    public static void downloadImageIntoImageView(String reviewId, String i1, String i2, String i3,
+                                                  ImageView iv1, ImageView iv2, ImageView iv3) {
+        DocumentReference reviewRef = MyFirestoreReferences.getReviewCollectionReference().document(reviewId);
+        String pathOne = "images/" + reviewId + "-" + Uri.parse(i1).getLastPathSegment();
+        String pathTwo = "images/" + reviewId + "-" + Uri.parse(i2).getLastPathSegment();
+        String pathThree = "images/" + reviewId + "-" + Uri.parse(i3).getLastPathSegment();
+        Log.d("MyFirestoreHelper", pathOne + " " + pathTwo + " " + pathThree);
+
+        MyFirestoreReferences.getStorageReferenceInstance().child(pathOne).getDownloadUrl()
+                .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(Task<Uri> task) {
+                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv1.getContext());
+                        circularProgressDrawable.setCenterRadius(30);
+                        Picasso.get()
+                                .load(task.getResult()).fit().centerCrop()
+                                .placeholder(circularProgressDrawable)
+                                .into(iv1);
+                    }
+                });
+
+        MyFirestoreReferences.getStorageReferenceInstance().child(pathTwo).getDownloadUrl()
+                .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(Task<Uri> task) {
+                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv2.getContext());
+                        circularProgressDrawable.setCenterRadius(30);
+                        Picasso.get()
+                                .load(task.getResult()).fit().centerCrop()
+                                .placeholder(circularProgressDrawable)
+                                .into(iv2);
+                    }
+                });
+
+        MyFirestoreReferences.getStorageReferenceInstance().child(pathThree).getDownloadUrl()
+                .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(Task<Uri> task) {
+                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv3.getContext());
+                        circularProgressDrawable.setCenterRadius(30);
+                        Picasso.get()
+                                .load(task.getResult()).fit().centerCrop()
+                                .placeholder(circularProgressDrawable)
+                                .into(iv3);
+                    }
+                });
     }
 
     public static void displayUserDetails(UserProfileActivity activity) {
