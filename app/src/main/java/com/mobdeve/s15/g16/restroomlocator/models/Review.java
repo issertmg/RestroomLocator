@@ -31,6 +31,19 @@ public class Review {
         this.remarks = remarks;
     }
 
+    public Review(String id, String userId, String restroomId, String startTime, String endTime, String fee, String imageUri1, String imageUri2, String imageUri3, String remarks) {
+        this.id = id;
+        this.userId = userId;
+        this.restroomId = restroomId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.fee = fee;
+        this.imageUri1 = imageUri1;
+        this.imageUri2 = imageUri2;
+        this.imageUri3 = imageUri3;
+        this.remarks = remarks;
+    }
+
     public String getId() {
         return id;
     }
