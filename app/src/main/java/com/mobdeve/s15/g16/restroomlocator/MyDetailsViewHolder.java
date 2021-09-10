@@ -20,8 +20,9 @@ public class MyDetailsViewHolder extends RecyclerView.ViewHolder {
         this.tvCommentNumReviews = itemView.findViewById(R.id.tvCommentNumReviews); // FIXME: CHANGE TO TIMESTAMP?
     }
 
-    public void bindData(Comment c) {
+    public void bindData(Comment c, String username) {
         this.tvComment.setText(c.getMessage());
+        this.tvCommentUsername.setText(username);
     }
 
 }

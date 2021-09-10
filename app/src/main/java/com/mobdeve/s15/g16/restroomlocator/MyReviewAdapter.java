@@ -4,9 +4,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.mobdeve.s15.g16.restroomlocator.models.User;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class MyReviewAdapter extends FirestoreRecyclerAdapter<Review, MyReviewViewHolder> {
 
@@ -28,11 +32,16 @@ public class MyReviewAdapter extends FirestoreRecyclerAdapter<Review, MyReviewVi
     @Override
     protected void onBindViewHolder(MyReviewViewHolder holder, int position, Review r) {
 
-        //FIXME: (SUGGESTION for username): query the username using the userID from review
-        // String username = (query for username based on the userID from review)
+        MyFirestoreReferences.getUserCollectionReference()
+                .document(r.getUserId())
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        User temp = documentSnapshot.toObject(User.class);
+                        holder.bindData(r, temp.getUsername());
 
-
-        //FIXME: suggestion of ivy: holder.bindDate(review, username)
-
+                    }
+                });
     }
 }

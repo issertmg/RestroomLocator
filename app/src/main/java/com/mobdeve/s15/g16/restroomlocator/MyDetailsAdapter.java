@@ -6,8 +6,12 @@ import android.view.ViewGroup;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.mobdeve.s15.g16.restroomlocator.models.Comment;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
+import com.mobdeve.s15.g16.restroomlocator.models.User;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class MyDetailsAdapter extends FirestoreRecyclerAdapter<Comment, MyDetailsViewHolder> {
 
@@ -25,5 +29,16 @@ public class MyDetailsAdapter extends FirestoreRecyclerAdapter<Comment, MyDetail
     @Override
     protected void onBindViewHolder(MyDetailsViewHolder holder, int position, Comment c) {
 
+        MyFirestoreReferences.getUserCollectionReference()
+                .document(c.getUserId())
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        User temp = documentSnapshot.toObject(User.class);
+                        holder.bindData(c, temp.getUsername());
+
+                    }
+                });
     }
 }

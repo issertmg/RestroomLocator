@@ -16,20 +16,19 @@ public class MyReviewViewHolder extends RecyclerView.ViewHolder {
     public MyReviewViewHolder(View itemView) {
         super(itemView);
         this.tvReviewUsername = itemView.findViewById(R.id.tvReviewUsername);
-        this.tvReviewNumReviews = itemView.findViewById(R.id.tvReviewNumReviews);
+        this.tvReviewNumReviews = itemView.findViewById(R.id.tvReviewNumReviews); //FIXME:
         this.ivReviewImageOne = itemView.findViewById(R.id.ivReviewImageOne);
         this.ivReviewImageTwo = itemView.findViewById(R.id.ivReviewImageTwo);
         this.ivReviewImageThree = itemView.findViewById(R.id.ivReviewImageThree);
     }
 
-    public void bindData(Review r, String userId) {
+    public void bindData(Review r, String username) {
 
         MyFirestoreHelper.downloadImageIntoImageView(r.getId(),
                 r.getImageUri1(), r.getImageUri2(), r.getImageUri3(),
                 this.ivReviewImageOne, this.ivReviewImageTwo, this.ivReviewImageThree);
 
-        //TOOD: add other setting up of views (username etc)
-        // this.tvReviewUsername = r.get
+        this.tvReviewUsername.setText(username);
     }
 }
 
