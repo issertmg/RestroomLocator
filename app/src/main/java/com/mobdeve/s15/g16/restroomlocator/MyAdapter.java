@@ -1,30 +1,43 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
+import android.text.Layout;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mobdeve.s15.g16.restroomlocator.models.Review;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-    // TODO:
+    private ArrayList<Review> data;
 
+    //FIXME:
+    public MyAdapter(ArrayList data) { this.data = data; }
 
-    @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View view = inflater.inflate(R.layout.review_layout, parent, false);
+
+        MyViewHolder myViewHolder = new MyViewHolder(view);
+
+        return myViewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        //TODO:
 
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return data.size();
     }
 }
