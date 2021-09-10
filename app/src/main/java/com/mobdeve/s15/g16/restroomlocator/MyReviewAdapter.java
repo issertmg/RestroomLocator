@@ -14,7 +14,7 @@ import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class MyReviewAdapter extends FirestoreRecyclerAdapter<Review, MyReviewViewHolder> {
 
-    public MyReviewAdapter(FirestoreRecyclerOptions<Review> options, String username) {
+    public MyReviewAdapter(FirestoreRecyclerOptions<Review> options) {
         super(options);
     }
 

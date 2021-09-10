@@ -15,7 +15,7 @@ import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class MyDetailsAdapter extends FirestoreRecyclerAdapter<Comment, MyDetailsViewHolder> {
 
-    public MyDetailsAdapter(FirestoreRecyclerOptions<Comment> options, String username) {
+    public MyDetailsAdapter(FirestoreRecyclerOptions<Comment> options) {
         super(options);
     }
 
