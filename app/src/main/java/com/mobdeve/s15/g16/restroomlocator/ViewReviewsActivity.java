@@ -1,5 +1,6 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,9 +8,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.mobdeve.s15.g16.restroomlocator.adapters.MyReviewAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
+import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class ViewReviewsActivity extends AppCompatActivity {
@@ -19,19 +24,23 @@ public class ViewReviewsActivity extends AppCompatActivity {
 
     // Replacement of the base adapter view
     private MyReviewAdapter myReviewAdapter;
-
-    // DB reference
-    private FirebaseFirestore dbRef;
+    private FloatingActionButton addReviewBtn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_reviews);
 
+        this.recyclerView = findViewById(R.id.recyclerView);
+        this.addReviewBtn = findViewById(R.id.fabAddReview);
+
+        Intent i = getIntent();
+        String restroomId = i.getStringExtra(IntentKeys.RESTROOM_ID_KEY);
+
         // Get reviews from the collection
-        this.dbRef = FirebaseFirestore.getInstance();
-        Query query = dbRef
-                .collection(MyFirestoreReferences.REVIEWS_COLLECTION)
+        Query query = MyFirestoreReferences
+                .getReviewCollectionReference()
+                .whereEqualTo(MyFirestoreReferences.RESTROOMID_FIELD, restroomId)
                 .orderBy(MyFirestoreReferences.TIMESTAMP_FIELD);
 
         // RECYCLER VIEW
@@ -43,12 +52,12 @@ public class ViewReviewsActivity extends AppCompatActivity {
         // Define adapter
         this.myReviewAdapter = new MyReviewAdapter(options);
 
+        this.recyclerView.setAdapter(this.myReviewAdapter);
+
         // Layout
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(linearLayoutManager);
 
-
-        //TODO: CLICK REVIEW THEN SHOW REVIEW DEETS
     }
 
     @Override

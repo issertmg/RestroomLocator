@@ -1,6 +1,5 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,8 +22,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.mobdeve.s15.g16.restroomlocator.adapters.MyDetailsAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Comment;
-import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 import java.util.HashMap;

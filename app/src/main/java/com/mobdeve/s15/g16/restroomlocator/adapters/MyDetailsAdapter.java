@@ -1,4 +1,4 @@
-package com.mobdeve.s15.g16.restroomlocator;
+package com.mobdeve.s15.g16.restroomlocator.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,9 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.mobdeve.s15.g16.restroomlocator.viewholders.MyDetailsViewHolder;
+import com.mobdeve.s15.g16.restroomlocator.R;
 import com.mobdeve.s15.g16.restroomlocator.models.Comment;
-import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.models.User;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 

@@ -229,17 +229,17 @@ public class AddRestroomActivity extends AppCompatActivity {
                     String tempImgThree;
 
                     if(imgOneIsNull)
-                        tempImgOne = "NOIMAGE";
+                        tempImgOne = MyFirestoreReferences.NOIMAGE;
                     else
                         tempImgOne = imageUriOne.toString();
 
                     if(imgTwoIsNull)
-                        tempImgTwo = "NOIMAGE";
+                        tempImgTwo = MyFirestoreReferences.NOIMAGE;
                     else
                         tempImgTwo = imageUriTwo.toString();
 
                     if(imgThreeIsNull)
-                        tempImgThree = "NOIMAGE";
+                        tempImgThree = MyFirestoreReferences.NOIMAGE;
                     else
                         tempImgThree = imageUriThree.toString();
 
@@ -348,17 +348,17 @@ public class AddRestroomActivity extends AppCompatActivity {
                     String tempImgThree;
 
                     if(imgOneIsNull)
-                        tempImgOne = "NOIMAGE";
+                        tempImgOne = MyFirestoreReferences.NOIMAGE;
                     else
                         tempImgOne = imageUriOne.toString();
 
                     if(imgTwoIsNull)
-                        tempImgTwo = "NOIMAGE";
+                        tempImgTwo = MyFirestoreReferences.NOIMAGE;
                     else
                         tempImgTwo = imageUriTwo.toString();
 
                     if(imgThreeIsNull)
-                        tempImgThree = "NOIMAGE";
+                        tempImgThree = MyFirestoreReferences.NOIMAGE;
                     else
                         tempImgThree = imageUriThree.toString();
 

@@ -133,7 +133,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
                     Intent i = new Intent(ViewRestroomsNearbyActivity.this, AddRestroomActivity.class);
                     i.putExtra(IntentKeys.LATITUDE_KEY, addPin.getPosition().getLatitude());
                     i.putExtra(IntentKeys.LONGITUDE_KEY, addPin.getPosition().getLongitude());
-                    addRestroomResultLauncher.launch(i);
+                    startActivity(i);
                 }
                 else {
                     setAddRestroomMode();
@@ -543,34 +543,4 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         sb.show();
         isAddRestroomMode = true;
     }
-
-    private ActivityResultLauncher<Intent> addRestroomResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        // TODO
-                        String restroomId = result.getData().getStringExtra(IntentKeys.RESTROOM_ID_KEY);
-                        double latitude = result.getData().getDoubleExtra(IntentKeys.LATITUDE_KEY, 0.0);
-                        double longitude = result.getData().getDoubleExtra(IntentKeys.LONGITUDE_KEY, 0.0);
-
-                        Marker m = new Marker(map);
-                        //m.setId(restroomId);
-                        m.setPosition(new GeoPoint(latitude, longitude));
-                        m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                            @Override
-                            public boolean onMarkerClick(Marker marker, MapView mapView) {
-                                Intent i = new Intent(ViewRestroomsNearbyActivity.this, ViewReviewsActivity.class);
-                                i.putExtra(IntentKeys.RESTROOM_ID_KEY, restroomId);
-                                startActivity(i);
-                                return true;
-                            }
-                        });
-                        map.getOverlays().add(m);
-                        map.invalidate();
-                    }
-                }
-            }
-    );
 }

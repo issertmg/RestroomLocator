@@ -1,6 +1,9 @@
 package com.mobdeve.s15.g16.restroomlocator.models;
 
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.ServerTimestamp;
+
+import java.util.Date;
 
 public class Review {
     @DocumentId
@@ -14,6 +17,7 @@ public class Review {
     private String imageUri2;
     private String imageUri3;
     private String remarks;
+    private @ServerTimestamp Date timestamp;
 
     public Review() {
 
@@ -122,5 +126,13 @@ public class Review {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 }

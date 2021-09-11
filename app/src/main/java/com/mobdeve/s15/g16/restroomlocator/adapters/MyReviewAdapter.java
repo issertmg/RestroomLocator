@@ -1,11 +1,17 @@
-package com.mobdeve.s15.g16.restroomlocator;
+package com.mobdeve.s15.g16.restroomlocator.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.mobdeve.s15.g16.restroomlocator.ViewReviewDetailsActivity;
+import com.mobdeve.s15.g16.restroomlocator.ViewReviewsActivity;
+import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
+import com.mobdeve.s15.g16.restroomlocator.viewholders.MyReviewViewHolder;
+import com.mobdeve.s15.g16.restroomlocator.R;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -31,17 +37,14 @@ public class MyReviewAdapter extends FirestoreRecyclerAdapter<Review, MyReviewVi
     // don't use position, and directly get the information from the model parameter.
     @Override
     protected void onBindViewHolder(MyReviewViewHolder holder, int position, Review r) {
-
-        MyFirestoreReferences.getUserCollectionReference()
-                .document(r.getUserId())
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        User temp = documentSnapshot.toObject(User.class);
-                        holder.bindData(r, temp.getUsername());
-
-                    }
-                });
+        holder.bindData(r);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(v.getContext(), ViewReviewDetailsActivity.class);
+                i.putExtra(IntentKeys.REVIEW_ID, r.getId());
+                v.getContext().startActivity(i);
+            }
+        });
     }
 }

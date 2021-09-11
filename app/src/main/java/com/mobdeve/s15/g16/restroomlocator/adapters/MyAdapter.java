@@ -1,4 +1,4 @@
-package com.mobdeve.s15.g16.restroomlocator;
+package com.mobdeve.s15.g16.restroomlocator.adapters;
 
 import android.text.Layout;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mobdeve.s15.g16.restroomlocator.MyViewHolder;
+import com.mobdeve.s15.g16.restroomlocator.R;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 
 import java.util.ArrayList;

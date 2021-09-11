@@ -2,7 +2,6 @@ package com.mobdeve.s15.g16.restroomlocator;
 
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,7 +17,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         this.ivReviewImageTwo = itemView.findViewById(R.id.ivReviewImageTwo);
         this.ivReviewImageThree = itemView.findViewById(R.id.ivReviewImageThree);
         this.tvReviewUsername = itemView.findViewById(R.id.tvReviewUsername);
-        this.tvReviewNumReviews = itemView.findViewById(R.id.tvReviewNumReviews);
+        this.tvReviewNumReviews = itemView.findViewById(R.id.tvReviewTimestamp);
     }
 
     public void setIvReviewImageOne(int iv) {this.ivReviewImageOne.setImageResource(iv);}

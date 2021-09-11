@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,11 +43,13 @@ import com.mobdeve.s15.g16.restroomlocator.R;
 import com.mobdeve.s15.g16.restroomlocator.SignUpActivity;
 import com.mobdeve.s15.g16.restroomlocator.UserProfileActivity;
 import com.mobdeve.s15.g16.restroomlocator.ViewRestroomsNearbyActivity;
+import com.mobdeve.s15.g16.restroomlocator.ViewReviewsActivity;
 import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.models.User;
 import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
@@ -230,7 +233,6 @@ public class MyFirestoreHelper {
                             review.setRestroomId(docRef.getId());
 
                             Intent result_intent = new Intent();
-                            result_intent.putExtra(IntentKeys.RESTROOM_ID_KEY, docRef.getId());
                             result_intent.putExtra(IntentKeys.NAME_KEY, location.getName());
                             result_intent.putExtra(IntentKeys.LATITUDE_KEY, location.getLatitude());
                             result_intent.putExtra(IntentKeys.LONGITUDE_KEY, location.getLongitude());
@@ -402,44 +404,50 @@ public class MyFirestoreHelper {
         String pathThree = "images/" + reviewId + "-" + Uri.parse(i3).getLastPathSegment();
         Log.d("MyFirestoreHelper", pathOne + " " + pathTwo + " " + pathThree);
 
-        MyFirestoreReferences.getStorageReferenceInstance().child(pathOne).getDownloadUrl()
-                .addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(Task<Uri> task) {
-                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv1.getContext());
-                        circularProgressDrawable.setCenterRadius(30);
-                        Picasso.get()
-                                .load(task.getResult()).fit().centerCrop()
-                                .placeholder(circularProgressDrawable)
-                                .into(iv1);
-                    }
-                });
+        if (!i1.equals(MyFirestoreReferences.NOIMAGE)) {
+            MyFirestoreReferences.getStorageReferenceInstance().child(pathOne).getDownloadUrl()
+                    .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(Task<Uri> task) {
+                            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv1.getContext());
+                            circularProgressDrawable.setCenterRadius(30);
+                            Picasso.get()
+                                    .load(task.getResult()).fit().centerCrop()
+                                    .placeholder(circularProgressDrawable)
+                                    .into(iv1);
+                        }
+                    });
+        }
 
-        MyFirestoreReferences.getStorageReferenceInstance().child(pathTwo).getDownloadUrl()
-                .addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(Task<Uri> task) {
-                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv2.getContext());
-                        circularProgressDrawable.setCenterRadius(30);
-                        Picasso.get()
-                                .load(task.getResult()).fit().centerCrop()
-                                .placeholder(circularProgressDrawable)
-                                .into(iv2);
-                    }
-                });
+        if (!i2.equals(MyFirestoreReferences.NOIMAGE)) {
+            MyFirestoreReferences.getStorageReferenceInstance().child(pathTwo).getDownloadUrl()
+                    .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(Task<Uri> task) {
+                            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv2.getContext());
+                            circularProgressDrawable.setCenterRadius(30);
+                            Picasso.get()
+                                    .load(task.getResult()).fit().centerCrop()
+                                    .placeholder(circularProgressDrawable)
+                                    .into(iv2);
+                        }
+                    });
+        }
 
-        MyFirestoreReferences.getStorageReferenceInstance().child(pathThree).getDownloadUrl()
-                .addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(Task<Uri> task) {
-                        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv3.getContext());
-                        circularProgressDrawable.setCenterRadius(30);
-                        Picasso.get()
-                                .load(task.getResult()).fit().centerCrop()
-                                .placeholder(circularProgressDrawable)
-                                .into(iv3);
-                    }
-                });
+        if (!i3.equals(MyFirestoreReferences.NOIMAGE)) {
+            MyFirestoreReferences.getStorageReferenceInstance().child(pathThree).getDownloadUrl()
+                    .addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(Task<Uri> task) {
+                            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(iv3.getContext());
+                            circularProgressDrawable.setCenterRadius(30);
+                            Picasso.get()
+                                    .load(task.getResult()).fit().centerCrop()
+                                    .placeholder(circularProgressDrawable)
+                                    .into(iv3);
+                        }
+                    });
+        }
     }
 
     public static void displayUserDetails(UserProfileActivity activity) {
@@ -562,11 +570,9 @@ public class MyFirestoreHelper {
                                     m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                                         @Override
                                         public boolean onMarkerClick(Marker marker, MapView mapView) {
-                                            //Intent i = new Intent(activity, ViewReviewDetailsActivity.class);
-                                            //i.putExtra(IntentKeys.RESTROOM_ID_KEY, r.getId());
-                                            //activity.startActivity(i);
-                                            Toast.makeText(activity,
-                                                    r.getId(), Toast.LENGTH_LONG).show();
+                                            Intent i = new Intent(activity, ViewReviewsActivity.class);
+                                            i.putExtra(IntentKeys.RESTROOM_ID_KEY, r.getId());
+                                            activity.startActivity(i);
                                             return false;
                                         }
                                     });
@@ -582,6 +588,25 @@ public class MyFirestoreHelper {
                                 });
                             }
                         }).start();
+                    }
+                });
+    }
+
+    public static void showUsernameInReview(Review r, TextView tvReviewUsername) {
+        MyFirestoreReferences.getUserCollectionReference().document(r.getUserId()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            User user = task.getResult().toObject(User.class);
+                            tvReviewUsername.setText(user.getUsername());
+                        }
+                        else {
+                            Toast.makeText(
+                                    tvReviewUsername.getContext(),
+                                    "Error getting username",
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }

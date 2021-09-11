@@ -66,7 +66,7 @@ public class MyFirestoreReferences {
     private static CollectionReference reviewsRef = null;
     private static CollectionReference commentsRef = null;
 
-
+    public final static String NOIMAGE = "NOIMAGE";
 
     // Collection and document names
     public final static String
