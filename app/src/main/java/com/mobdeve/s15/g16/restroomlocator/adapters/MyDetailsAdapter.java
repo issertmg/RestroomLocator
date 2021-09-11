@@ -29,17 +29,6 @@ public class MyDetailsAdapter extends FirestoreRecyclerAdapter<Comment, MyDetail
 
     @Override
     protected void onBindViewHolder(MyDetailsViewHolder holder, int position, Comment c) {
-
-        MyFirestoreReferences.getUserCollectionReference()
-                .document(c.getUserId())
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        User temp = documentSnapshot.toObject(User.class);
-                        holder.bindData(c, temp.getUsername());
-
-                    }
-                });
+        holder.bindData(c);
     }
 }

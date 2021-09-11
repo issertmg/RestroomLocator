@@ -314,6 +314,11 @@ public class MyFirestoreHelper {
                             }
                         }
 
+                        // Direct to reviews list
+                        Intent i = new Intent(activity, ViewReviewsActivity.class);
+                        i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
+                        activity.startActivity(i);
+                        activity.finish();
                     }
                 })
                 .addOnFailureListener(activity, new OnFailureListener() {
@@ -576,8 +581,13 @@ public class MyFirestoreHelper {
                                             return false;
                                         }
                                     });
-                                    activity.addMarkerToList(m);
-                                    map.getOverlayManager().add(m);
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            activity.addMarkerToList(m);
+                                            map.getOverlayManager().add(m);
+                                        }
+                                    });
                                 }
                                 activity.runOnUiThread(new Runnable() {
                                     @Override
@@ -588,25 +598,6 @@ public class MyFirestoreHelper {
                                 });
                             }
                         }).start();
-                    }
-                });
-    }
-
-    public static void showUsernameInReview(Review r, TextView tvReviewUsername) {
-        MyFirestoreReferences.getUserCollectionReference().document(r.getUserId()).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            User user = task.getResult().toObject(User.class);
-                            tvReviewUsername.setText(user.getUsername());
-                        }
-                        else {
-                            Toast.makeText(
-                                    tvReviewUsername.getContext(),
-                                    "Error getting username",
-                                    Toast.LENGTH_SHORT).show();
-                        }
                     }
                 });
     }

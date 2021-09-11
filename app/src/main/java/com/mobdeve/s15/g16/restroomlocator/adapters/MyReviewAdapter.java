@@ -1,14 +1,18 @@
 package com.mobdeve.s15.g16.restroomlocator.adapters;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.mobdeve.s15.g16.restroomlocator.ViewReviewDetailsActivity;
 import com.mobdeve.s15.g16.restroomlocator.ViewReviewsActivity;
+import com.mobdeve.s15.g16.restroomlocator.utils.Helper;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.viewholders.MyReviewViewHolder;
 import com.mobdeve.s15.g16.restroomlocator.R;
@@ -20,8 +24,11 @@ import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class MyReviewAdapter extends FirestoreRecyclerAdapter<Review, MyReviewViewHolder> {
 
-    public MyReviewAdapter(FirestoreRecyclerOptions<Review> options) {
+    private Context context;
+
+    public MyReviewAdapter(FirestoreRecyclerOptions<Review> options, Context context) {
         super(options);
+        this.context = context;
     }
 
     @Override
@@ -41,9 +48,18 @@ public class MyReviewAdapter extends FirestoreRecyclerAdapter<Review, MyReviewVi
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(v.getContext(), ViewReviewDetailsActivity.class);
-                i.putExtra(IntentKeys.REVIEW_ID, r.getId());
-                v.getContext().startActivity(i);
+                Intent i = new Intent(context, ViewReviewDetailsActivity.class);
+                i.putExtra(IntentKeys.REVIEW_ID_KEY, r.getId());
+                i.putExtra(IntentKeys.USERNAME_KEY, r.getUsername());
+                i.putExtra(IntentKeys.START_TIME_KEY, r.getStartTime());
+                i.putExtra(IntentKeys.END_TIME_KEY, r.getEndTime());
+                i.putExtra(IntentKeys.FEE_KEY, r.getFee());
+                i.putExtra(IntentKeys.IMAGE_URI_1_KEY, r.getImageUri1());
+                i.putExtra(IntentKeys.IMAGE_URI_2_KEY, r.getImageUri2());
+                i.putExtra(IntentKeys.IMAGE_URI_3_KEY, r.getImageUri3());
+                i.putExtra(IntentKeys.REMARKS_KEY, r.getRemarks());
+                i.putExtra(IntentKeys.TIMESTAMP_KEY, Helper.dateToString(r.getTimestamp()));
+                ((Activity) context).startActivity(i);
             }
         });
     }

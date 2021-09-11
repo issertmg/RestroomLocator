@@ -9,6 +9,7 @@ public class Comment {
     @DocumentId
     private String id;
     private String userId;
+    private String username;
     private String reviewId;
     private String message;
     private @ServerTimestamp Date timestamp;
@@ -17,8 +18,9 @@ public class Comment {
 
     }
 
-    public Comment(String userId, String reviewId, String message) {
+    public Comment(String userId, String username, String reviewId, String message) {
         this.userId = userId;
+        this.username = username;
         this.reviewId = reviewId;
         this.message = message;
     }
@@ -37,6 +39,14 @@ public class Comment {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getReviewId() {

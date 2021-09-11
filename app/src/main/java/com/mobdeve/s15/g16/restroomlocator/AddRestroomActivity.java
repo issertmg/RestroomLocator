@@ -123,7 +123,7 @@ public class AddRestroomActivity extends AppCompatActivity {
 
         // check if intent is for editing
         boolean editing = getIntent().getBooleanExtra(IntentKeys.EDITING_KEY, false);
-        String reviewId = getIntent().getStringExtra(IntentKeys.REVIEW_ID);
+        String reviewId = getIntent().getStringExtra(IntentKeys.REVIEW_ID_KEY);
 
         // hide restroom name field if restroom location already exists
         if (restroomId != null) {
@@ -245,6 +245,7 @@ public class AddRestroomActivity extends AppCompatActivity {
 
                     // Get user id
                     String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
+                    String username = MyFirestoreReferences.getAuthInstance().getCurrentUser().getEmail().split("@")[0];
 
                     if (restroomId == null) {
                         Restroom location = new Restroom(
@@ -255,6 +256,7 @@ public class AddRestroomActivity extends AppCompatActivity {
 
                         Review review = new Review(
                                 userId,
+                                username,
                                 "",
                                 tvStartTime.getText().toString(),
                                 tvEndTime.getText().toString(),
@@ -279,6 +281,7 @@ public class AddRestroomActivity extends AppCompatActivity {
                     else {
                         Review review = new Review(
                                 userId,
+                                username,
                                 restroomId,
                                 tvStartTime.getText().toString(),
                                 tvEndTime.getText().toString(),
@@ -363,10 +366,12 @@ public class AddRestroomActivity extends AppCompatActivity {
                         tempImgThree = imageUriThree.toString();
 
                     String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
+                    String username = MyFirestoreReferences.getAuthInstance().getCurrentUser().getEmail().split("@")[0];
 
                     Review review = new Review(
                             reviewId,
                             userId,
+                            username,
                             restroomId,
                             tvStartTime.getText().toString(),
                             tvEndTime.getText().toString(),

@@ -50,7 +50,7 @@ public class ViewReviewsActivity extends AppCompatActivity {
                 .build();
 
         // Define adapter
-        this.myReviewAdapter = new MyReviewAdapter(options);
+        this.myReviewAdapter = new MyReviewAdapter(options, this);
 
         this.recyclerView.setAdapter(this.myReviewAdapter);
 

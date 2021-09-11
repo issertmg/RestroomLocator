@@ -9,6 +9,7 @@ public class Review {
     @DocumentId
     private String id;
     private String userId;
+    private String username;
     private String restroomId;
     private String startTime;
     private String endTime;
@@ -23,8 +24,9 @@ public class Review {
 
     }
 
-    public Review(String userId, String restroomId, String startTime, String endTime, String fee, String imageUri1, String imageUri2, String imageUri3, String remarks) {
+    public Review(String userId, String username, String restroomId, String startTime, String endTime, String fee, String imageUri1, String imageUri2, String imageUri3, String remarks) {
         this.userId = userId;
+        this.username = username;
         this.restroomId = restroomId;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -35,9 +37,10 @@ public class Review {
         this.remarks = remarks;
     }
 
-    public Review(String id, String userId, String restroomId, String startTime, String endTime, String fee, String imageUri1, String imageUri2, String imageUri3, String remarks) {
+    public Review(String id, String userId, String username, String restroomId, String startTime, String endTime, String fee, String imageUri1, String imageUri2, String imageUri3, String remarks) {
         this.id = id;
         this.userId = userId;
+        this.username = username;
         this.restroomId = restroomId;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -54,6 +57,14 @@ public class Review {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getUserId() {

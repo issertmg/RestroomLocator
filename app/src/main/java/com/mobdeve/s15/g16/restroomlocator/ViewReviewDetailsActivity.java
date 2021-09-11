@@ -1,12 +1,15 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -24,6 +27,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.mobdeve.s15.g16.restroomlocator.adapters.MyDetailsAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Comment;
+import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 import java.util.HashMap;
@@ -34,10 +39,12 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     private static final String TAG = "ViewRevDetailsActivity";
 
     // Views needed
-    private TextView tvDetailsUsername, TvDetailsNumReview, tvDetailsName,
-            tvDetailsRemarksInfo, tvDetailsPaymentInfo, tvDetailsHoursInfo; //FIXME:
+    private TextView tvDetailsUsername, tvDetailsTimestamp, tvDetailsName,
+            tvDetailsRemarksInfo, tvDetailsFeeInfo, tvDetailsHoursInfo; //FIXME:
     private EditText etComment;
     private ImageButton ibAddComment;
+    private ImageView ivDetailsImageOne, ivDetailsImageTwo, ivDetailsImageThree;
+    private HorizontalScrollView imageScrollView;
 
     // RecyclerView Components
     private RecyclerView recyclerView;
@@ -45,18 +52,53 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     // Replacement of the base adapter view
     private MyDetailsAdapter myDetailsAdapter;
 
-    // DB reference
-    private FirebaseFirestore dbRef;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_review_details);
 
+        this.recyclerView = findViewById(R.id.rvComments);
+        this.tvDetailsUsername = findViewById(R.id.tvDetailsUsername);
+        this.tvDetailsTimestamp = findViewById(R.id.tvDetailsTimestamp);
+        this.tvDetailsName = findViewById(R.id.tvDetailsName);
+        this.tvDetailsRemarksInfo = findViewById(R.id.tvDetailsRemarksInfo);
+        this.tvDetailsFeeInfo = findViewById(R.id.tvDetailsFeeInfo);
+        this.tvDetailsHoursInfo = findViewById(R.id.tvDetailsHoursInfo);
+        this.etComment = findViewById(R.id.etComment);
+        this.ibAddComment = findViewById(R.id.ibAddComment);
+        this.ivDetailsImageOne = findViewById(R.id.ivDetailsImageOne);
+        this.ivDetailsImageTwo = findViewById(R.id.ivDetailsImageTwo);
+        this.ivDetailsImageThree = findViewById(R.id.ivDetailsImageThree);
+        this.imageScrollView = findViewById(R.id.hsvImages);
+
+
+        Intent i = getIntent();
+        String reviewId = i.getStringExtra(IntentKeys.REVIEW_ID_KEY);
+        String username = i.getStringExtra(IntentKeys.USERNAME_KEY);
+        String startTime = i.getStringExtra(IntentKeys.START_TIME_KEY);
+        String endTime = i.getStringExtra(IntentKeys.END_TIME_KEY);
+        String fee = i.getStringExtra(IntentKeys.FEE_KEY);
+        String imageUri1 = i.getStringExtra(IntentKeys.IMAGE_URI_1_KEY);
+        String imageUri2 = i.getStringExtra(IntentKeys.IMAGE_URI_2_KEY);
+        String imageUri3 = i.getStringExtra(IntentKeys.IMAGE_URI_3_KEY);
+        String remarks = i.getStringExtra(IntentKeys.REMARKS_KEY);
+        String timestamp = i.getStringExtra(IntentKeys.TIMESTAMP_KEY);
+
+        this.tvDetailsUsername.setText(username);
+        this.tvDetailsTimestamp.setText(timestamp);
+        this.tvDetailsRemarksInfo.setText(remarks);
+        this.tvDetailsFeeInfo.setText(fee);
+        this.tvDetailsHoursInfo.setText(startTime + "H - " + endTime + "H");
+        displayImages(reviewId, imageUri1, imageUri2, imageUri3);
+
+        //TODO
+        this.tvDetailsName.setVisibility(View.GONE);
+
+
         // Get comments from the collection
-        this.dbRef = FirebaseFirestore.getInstance();
-        Query query = dbRef
-                .collection(MyFirestoreReferences.COMMENTS_COLLECTION)
+        Query query = MyFirestoreReferences
+                .getCommentCollectionReference()
+                .whereEqualTo(MyFirestoreReferences.REVIEWID_FIELD, reviewId)
                 .orderBy(MyFirestoreReferences.TIMESTAMP_FIELD);
 
         // RECYCLER VIEW
@@ -67,6 +109,8 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
 
         // Define adapter
         this.myDetailsAdapter = new MyDetailsAdapter(options);
+
+        this.recyclerView.setAdapter(this.myDetailsAdapter);
 
         // Layout
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -83,7 +127,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                 data.put(MyFirestoreReferences.TIMESTAMP_FIELD, FieldValue.serverTimestamp());
 
                 // Send the data off to the Comment collection
-                dbRef.collection(MyFirestoreReferences.COMMENTS_COLLECTION).add(data)
+                MyFirestoreReferences.getCommentCollectionReference().add(data)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
@@ -123,5 +167,31 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         }
     }
 
+    public void displayImages(String reviewId, String imageUri1, String imageUri2, String imageUri3) {
+        if (imageUri1.equals(MyFirestoreReferences.NOIMAGE))
+            this.ivDetailsImageOne.setVisibility(View.GONE);
+        else
+            this.ivDetailsImageOne.setVisibility(View.VISIBLE);
 
+        if (imageUri2.equals(MyFirestoreReferences.NOIMAGE))
+            this.ivDetailsImageTwo.setVisibility(View.GONE);
+        else
+            this.ivDetailsImageTwo.setVisibility(View.VISIBLE);
+
+        if (imageUri3.equals(MyFirestoreReferences.NOIMAGE))
+            this.ivDetailsImageThree.setVisibility(View.GONE);
+        else
+            this.ivDetailsImageThree.setVisibility(View.VISIBLE);
+
+        if (imageUri1.equals(MyFirestoreReferences.NOIMAGE) &&
+                imageUri2.equals(MyFirestoreReferences.NOIMAGE) &&
+                imageUri3.equals(MyFirestoreReferences.NOIMAGE))
+            this.imageScrollView.setVisibility(View.GONE);
+        else
+            this.imageScrollView.setVisibility(View.VISIBLE);
+
+        MyFirestoreHelper.downloadImageIntoImageView(reviewId,
+                imageUri1, imageUri2, imageUri3,
+                this.ivDetailsImageOne, this.ivDetailsImageTwo, this.ivDetailsImageThree);
+    }
 }
