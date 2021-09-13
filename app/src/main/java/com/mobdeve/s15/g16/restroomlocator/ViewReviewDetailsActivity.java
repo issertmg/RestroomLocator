@@ -38,6 +38,9 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "ViewRevDetailsActivity";
 
+    // intent details
+    private String reviewId, username, startTime, endTime, fee, imageUri1, imageUri2, imageUri3, remarks, timestamp;
+
     // Views needed
     private TextView tvDetailsUsername, tvDetailsTimestamp, tvDetailsName,
             tvDetailsRemarksInfo, tvDetailsFeeInfo, tvDetailsHoursInfo; //FIXME:
@@ -73,16 +76,16 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
 
 
         Intent i = getIntent();
-        String reviewId = i.getStringExtra(IntentKeys.REVIEW_ID_KEY);
-        String username = i.getStringExtra(IntentKeys.USERNAME_KEY);
-        String startTime = i.getStringExtra(IntentKeys.START_TIME_KEY);
-        String endTime = i.getStringExtra(IntentKeys.END_TIME_KEY);
-        String fee = i.getStringExtra(IntentKeys.FEE_KEY);
-        String imageUri1 = i.getStringExtra(IntentKeys.IMAGE_URI_1_KEY);
-        String imageUri2 = i.getStringExtra(IntentKeys.IMAGE_URI_2_KEY);
-        String imageUri3 = i.getStringExtra(IntentKeys.IMAGE_URI_3_KEY);
-        String remarks = i.getStringExtra(IntentKeys.REMARKS_KEY);
-        String timestamp = i.getStringExtra(IntentKeys.TIMESTAMP_KEY);
+        reviewId = i.getStringExtra(IntentKeys.REVIEW_ID_KEY);
+        username = i.getStringExtra(IntentKeys.USERNAME_KEY);
+        startTime = i.getStringExtra(IntentKeys.START_TIME_KEY);
+        endTime = i.getStringExtra(IntentKeys.END_TIME_KEY);
+        fee = i.getStringExtra(IntentKeys.FEE_KEY);
+        imageUri1 = i.getStringExtra(IntentKeys.IMAGE_URI_1_KEY);
+        imageUri2 = i.getStringExtra(IntentKeys.IMAGE_URI_2_KEY);
+        imageUri3 = i.getStringExtra(IntentKeys.IMAGE_URI_3_KEY);
+        remarks = i.getStringExtra(IntentKeys.REMARKS_KEY);
+        timestamp = i.getStringExtra(IntentKeys.TIMESTAMP_KEY);
 
         this.tvDetailsUsername.setText(username);
         this.tvDetailsTimestamp.setText(timestamp);
@@ -157,10 +160,21 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_edit_review:
-                // TODO action when edit is clicked
+                Intent i = new Intent(this, AddRestroomActivity.class);
+                i.putExtra(IntentKeys.EDITING_KEY, true);
+                i.putExtra(IntentKeys.REVIEW_ID_KEY, reviewId);
+                i.putExtra(IntentKeys.START_TIME_KEY, startTime);
+                i.putExtra(IntentKeys.END_TIME_KEY, endTime);
+                i.putExtra(IntentKeys.FEE_KEY, fee);
+                i.putExtra(IntentKeys.REMARKS_KEY, remarks);
+                i.putExtra(IntentKeys.IMAGE_URI_1_KEY, imageUri1);
+                i.putExtra(IntentKeys.IMAGE_URI_2_KEY, imageUri2);
+                i.putExtra(IntentKeys.IMAGE_URI_3_KEY, imageUri3);
+                startActivity(i);
+                finish();
                 return true;
             case R.id.action_delete_review:
-                // TODO action when delete is clicked
+                MyFirestoreHelper.deleteReview(this, reviewId, imageUri1, imageUri2, imageUri3);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
