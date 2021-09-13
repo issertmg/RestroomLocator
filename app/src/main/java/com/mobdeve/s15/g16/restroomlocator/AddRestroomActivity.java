@@ -310,32 +310,47 @@ public class AddRestroomActivity extends AppCompatActivity {
             // modify text fields appropriately
             tvAddRestroom.setText("Edit restroom");
             btnAdd.setText("Save changes");
+            etvName.setVisibility(View.GONE);
 
             // load Review details into the view
-            DocumentReference reviewRef = MyFirestoreReferences.getReviewCollectionReference().document(reviewId);
-            reviewRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()){
-                        DocumentSnapshot document = task.getResult();
-                        if(document.exists()){
-                            tvStartTime.setText(document.getString(MyFirestoreReferences.STARTTIME_FIELD));
-                            tvEndTime.setText(document.getString(MyFirestoreReferences.ENDTIME_FIELD));
-                            etvPrice.setText(document.getString(MyFirestoreReferences.FEE_FIELD));
-                            etvRemarks.setText(document.getString(MyFirestoreReferences.REMARKS_FIELD));
-                            MyFirestoreHelper.downloadImageIntoImageView(
-                                    reviewId,
-                                    document.getString(MyFirestoreReferences.IMAGEURI1_FIELD),
-                                    document.getString(MyFirestoreReferences.IMAGEURI2_FIELD),
-                                    document.getString(MyFirestoreReferences.IMAGEURI3_FIELD),
-                                    ibImgOne,
-                                    ibImgTwo,
-                                    ibImgThree
-                            );
-                        }
-                    }
-                }
-            });
+            tvStartTime.setText(getIntent().getStringExtra(IntentKeys.START_TIME_KEY));
+            tvEndTime.setText(getIntent().getStringExtra(IntentKeys.END_TIME_KEY));
+            etvPrice.setText(getIntent().getStringExtra(IntentKeys.FEE_KEY));
+            etvRemarks.setText(getIntent().getStringExtra(IntentKeys.REMARKS_KEY));
+            MyFirestoreHelper.downloadImageIntoImageView(
+                    reviewId,
+                    getIntent().getStringExtra(IntentKeys.IMAGE_URI_1_KEY),
+                    getIntent().getStringExtra(IntentKeys.IMAGE_URI_2_KEY),
+                    getIntent().getStringExtra(IntentKeys.IMAGE_URI_3_KEY),
+                    ibImgOne,
+                    ibImgTwo,
+                    ibImgThree
+            );
+
+//            DocumentReference reviewRef = MyFirestoreReferences.getReviewCollectionReference().document(reviewId);
+//            reviewRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                @Override
+//                public void onComplete(Task<DocumentSnapshot> task) {
+//                    if(task.isSuccessful()){
+//                        DocumentSnapshot document = task.getResult();
+//                        if(document.exists()){
+//                            tvStartTime.setText(document.getString(MyFirestoreReferences.STARTTIME_FIELD));
+//                            tvEndTime.setText(document.getString(MyFirestoreReferences.ENDTIME_FIELD));
+//                            etvPrice.setText(document.getString(MyFirestoreReferences.FEE_FIELD));
+//                            etvRemarks.setText(document.getString(MyFirestoreReferences.REMARKS_FIELD));
+//                            MyFirestoreHelper.downloadImageIntoImageView(
+//                                    reviewId,
+//                                    document.getString(MyFirestoreReferences.IMAGEURI1_FIELD),
+//                                    document.getString(MyFirestoreReferences.IMAGEURI2_FIELD),
+//                                    document.getString(MyFirestoreReferences.IMAGEURI3_FIELD),
+//                                    ibImgOne,
+//                                    ibImgTwo,
+//                                    ibImgThree
+//                            );
+//                        }
+//                    }
+//                }
+//            });
 
             btnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -391,6 +406,8 @@ public class AddRestroomActivity extends AppCompatActivity {
                             imageUriThree,
                             AddRestroomActivity.this
                     );
+                    startActivity(new Intent(AddRestroomActivity.this, ViewRestroomsNearbyActivity.class));
+                    finish();
                 }
             });
         }
