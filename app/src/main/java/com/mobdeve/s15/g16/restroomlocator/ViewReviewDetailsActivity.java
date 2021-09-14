@@ -30,7 +30,6 @@ import com.mobdeve.s15.g16.restroomlocator.models.Comment;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
-import com.mobdeve.s15.g16.restroomlocator.utils.NpaLinearLayoutManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -117,7 +116,12 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         this.recyclerView.setAdapter(this.myDetailsAdapter);
 
         // Layout
-        NpaLinearLayoutManager linearLayoutManager = new NpaLinearLayoutManager(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
         this.recyclerView.setLayoutManager(linearLayoutManager);
 
         this.ibAddComment.setOnClickListener(new View.OnClickListener() {

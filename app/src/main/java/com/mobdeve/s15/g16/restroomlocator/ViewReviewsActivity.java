@@ -16,7 +16,6 @@ import com.mobdeve.s15.g16.restroomlocator.adapters.MyReviewAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
-import com.mobdeve.s15.g16.restroomlocator.utils.NpaLinearLayoutManager;
 
 public class ViewReviewsActivity extends AppCompatActivity {
 
@@ -56,7 +55,12 @@ public class ViewReviewsActivity extends AppCompatActivity {
         this.recyclerView.setAdapter(this.myReviewAdapter);
 
         // Layout
-        NpaLinearLayoutManager linearLayoutManager = new NpaLinearLayoutManager(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
         this.recyclerView.setLayoutManager(linearLayoutManager);
 
     }
