@@ -155,7 +155,6 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Exception e) {
                                 Log.w(TAG, "Error adding document", e);
-                                Log.d("HUHU", "WHY");
                             }
                         });
             }
