@@ -16,6 +16,7 @@ import com.mobdeve.s15.g16.restroomlocator.adapters.MyReviewAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
+import com.mobdeve.s15.g16.restroomlocator.utils.NpaLinearLayoutManager;
 
 public class ViewReviewsActivity extends AppCompatActivity {
 
@@ -55,7 +56,7 @@ public class ViewReviewsActivity extends AppCompatActivity {
         this.recyclerView.setAdapter(this.myReviewAdapter);
 
         // Layout
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        NpaLinearLayoutManager linearLayoutManager = new NpaLinearLayoutManager(this);
         this.recyclerView.setLayoutManager(linearLayoutManager);
 
     }
