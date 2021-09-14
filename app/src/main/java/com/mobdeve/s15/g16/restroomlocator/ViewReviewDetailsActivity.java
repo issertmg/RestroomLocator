@@ -47,7 +47,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     private static final String TAG = "ViewRevDetailsActivity";
 
     // intent details
-    private String reviewId, username, startTime, endTime, fee, imageUri1, imageUri2, imageUri3, remarks, timestamp;
+    private String reviewId, username, startTime, endTime, fee, imageUri1, imageUri2, imageUri3, remarks, timestamp, restroomId;
 
     // Views needed
     private TextView tvDetailsUsername, tvDetailsTimestamp, tvDetailsName,
@@ -94,6 +94,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         imageUri3 = i.getStringExtra(IntentKeys.IMAGE_URI_3_KEY);
         remarks = i.getStringExtra(IntentKeys.REMARKS_KEY);
         timestamp = i.getStringExtra(IntentKeys.TIMESTAMP_KEY);
+        restroomId = i.getStringExtra(IntentKeys.RESTROOM_ID_KEY);
 
         this.tvDetailsUsername.setText(username);
         this.tvDetailsTimestamp.setText(timestamp);
@@ -204,7 +205,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                 startActivity(i);
                 return true;
             case R.id.action_delete_review:
-                MyFirestoreHelper.deleteReview(this, reviewId, imageUri1, imageUri2, imageUri3);
+                MyFirestoreHelper.deleteReview(this, reviewId, restroomId, imageUri1, imageUri2, imageUri3);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

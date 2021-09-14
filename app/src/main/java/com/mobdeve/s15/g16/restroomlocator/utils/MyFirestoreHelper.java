@@ -406,33 +406,52 @@ public class MyFirestoreHelper {
         });
     }
 
-    public static void deleteReview(Activity a, String reviewId, String i1, String i2, String i3){
-        DocumentReference reviewRef = MyFirestoreReferences.getReviewCollectionReference().document(reviewId);
-        reviewRef
-            .delete()
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void unused) {
-                    String pathOne = "images/" + reviewId + "-" + Uri.parse(i1).getLastPathSegment();
-                    String pathTwo = "images/" + reviewId + "-" + Uri.parse(i2).getLastPathSegment();
-                    String pathThree = "images/" + reviewId + "-" + Uri.parse(i3).getLastPathSegment();
+    public static void deleteReview(Activity a, String reviewId, String restroomId, String i1, String i2, String i3){
+        MyFirestoreReferences
+                .getReviewCollectionReference()
+                .whereEqualTo(MyFirestoreReferences.RESTROOMID_FIELD, restroomId)
+                .get()
+                .addOnCompleteListener(a, new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int reviewCount = task.getResult().size();
+                            if (reviewCount == 1) {
+                                MyFirestoreReferences
+                                        .getRestroomCollectionReference()
+                                        .document(restroomId)
+                                        .delete();
+                            }
+                            MyFirestoreReferences
+                                    .getReviewCollectionReference()
+                                    .document(reviewId)
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            String pathOne = "images/" + reviewId + "-" + Uri.parse(i1).getLastPathSegment();
+                                            String pathTwo = "images/" + reviewId + "-" + Uri.parse(i2).getLastPathSegment();
+                                            String pathThree = "images/" + reviewId + "-" + Uri.parse(i3).getLastPathSegment();
 
-                    if(!i1.equals(MyFirestoreReferences.NOIMAGE)) {
-                        MyFirestoreReferences.getStorageReferenceInstance().child(pathOne).delete();
+                                            if(!i1.equals(MyFirestoreReferences.NOIMAGE)) {
+                                                MyFirestoreReferences.getStorageReferenceInstance().child(pathOne).delete();
+                                            }
+
+                                            if(!i2.equals(MyFirestoreReferences.NOIMAGE)) {
+                                                MyFirestoreReferences.getStorageReferenceInstance().child(pathTwo).delete();
+                                            }
+
+                                            if(!i3.equals(MyFirestoreReferences.NOIMAGE)) {
+                                                MyFirestoreReferences.getStorageReferenceInstance().child(pathThree).delete();
+                                            }
+
+                                            Toast.makeText(a, "Delete successful", Toast.LENGTH_SHORT).show();
+                                            a.finish();
+                                        }
+                                    });
+                        }
                     }
-
-                    if(!i2.equals(MyFirestoreReferences.NOIMAGE)) {
-                        MyFirestoreReferences.getStorageReferenceInstance().child(pathTwo).delete();
-                    }
-
-                    if(!i3.equals(MyFirestoreReferences.NOIMAGE)) {
-                        MyFirestoreReferences.getStorageReferenceInstance().child(pathThree).delete();
-                    }
-
-                    Toast.makeText(a, "Delete successful", Toast.LENGTH_SHORT).show();
-                    a.finish();
-                }
-            });
+                });
     }
 
     public static void downloadImageIntoImageView(String reviewId, String i1, String i2, String i3,
