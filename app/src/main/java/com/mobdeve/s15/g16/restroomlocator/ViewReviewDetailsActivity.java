@@ -136,10 +136,9 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String comment = etComment.getText().toString();
-                String userId = MyFirestoreReferences.getAuthInstance().getUid();
-                String username = MyFirestoreReferences.getAuthInstance().getCurrentUser().getEmail().split("@")[0];
+                String userId = MyFirestoreHelper.getUserID();
+                String username = MyFirestoreHelper.getUsername();
 
-                Log.d("COMMENT HERE:", comment);
                 // Send the data off to the Comment collection
                 MyFirestoreReferences.getCommentCollectionReference().add(new Comment(userId, username, reviewId, comment))
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

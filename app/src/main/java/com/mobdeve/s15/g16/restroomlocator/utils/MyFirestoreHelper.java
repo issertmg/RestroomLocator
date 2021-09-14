@@ -496,7 +496,7 @@ public class MyFirestoreHelper {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
+        String userId = MyFirestoreHelper.getUserID();
 
         MyFirestoreReferences.getUserCollectionReference().document(userId).get()
                 .addOnCompleteListener(activity, new OnCompleteListener<DocumentSnapshot>() {
@@ -634,6 +634,14 @@ public class MyFirestoreHelper {
                         }).start();
                     }
                 });
+    }
+
+    public static String getUsername() {
+        return MyFirestoreReferences.getAuthInstance().getCurrentUser().getEmail().split("@")[0];
+    }
+
+    public static String getUserID() {
+        return MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
     }
 
 }

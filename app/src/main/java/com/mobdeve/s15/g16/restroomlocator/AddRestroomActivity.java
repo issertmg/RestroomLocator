@@ -244,8 +244,8 @@ public class AddRestroomActivity extends AppCompatActivity {
                         tempImgThree = imageUriThree.toString();
 
                     // Get user id
-                    String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
-                    String username = MyFirestoreReferences.getAuthInstance().getCurrentUser().getEmail().split("@")[0];
+                    String userId = MyFirestoreHelper.getUserID();
+                    String username = MyFirestoreHelper.getUsername();
 
                     if (restroomId == null) {
                         Restroom location = new Restroom(
@@ -382,8 +382,8 @@ public class AddRestroomActivity extends AppCompatActivity {
                     else
                         tempImgThree = imageUriThree.toString();
 
-                    String userId = MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
-                    String username = MyFirestoreReferences.getAuthInstance().getCurrentUser().getEmail().split("@")[0];
+                    String userId = MyFirestoreHelper.getUserID();
+                    String username = MyFirestoreHelper.getUsername();
 
                     Review review = new Review(
                             reviewId,

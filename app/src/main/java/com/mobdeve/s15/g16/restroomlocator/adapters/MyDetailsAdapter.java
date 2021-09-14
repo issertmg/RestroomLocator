@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
 import com.mobdeve.s15.g16.restroomlocator.viewholders.MyDetailsViewHolder;
 import com.mobdeve.s15.g16.restroomlocator.R;
 import com.mobdeve.s15.g16.restroomlocator.models.Comment;
@@ -45,6 +46,9 @@ public class MyDetailsAdapter extends FirestoreRecyclerAdapter<Comment, MyDetail
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                String userId = MyFirestoreHelper.getUserID();
+                if (!userId.equals(MyFirestoreHelper.getUserID())) { return false; }
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                 builder.setItems(commentActions, new DialogInterface.OnClickListener() {
                     @Override
