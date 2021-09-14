@@ -218,7 +218,8 @@ public class MyFirestoreHelper {
                                               Uri imageUriOne,
                                               Uri imageUriTwo,
                                               Uri imageUriThree,
-                                              AddRestroomActivity activity) {
+                                              AddRestroomActivity activity,
+                                              String previousActivity) {
 
         String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(location.getLatitude(), location.getLongitude()));
         location.setGeohash(hash);
@@ -234,13 +235,6 @@ public class MyFirestoreHelper {
                             DocumentReference docRef = task.getResult();
                             review.setRestroomId(docRef.getId());
 
-                            Intent result_intent = new Intent();
-                            result_intent.putExtra(IntentKeys.NAME_KEY, location.getName());
-                            result_intent.putExtra(IntentKeys.LATITUDE_KEY, location.getLatitude());
-                            result_intent.putExtra(IntentKeys.LONGITUDE_KEY, location.getLongitude());
-                            activity.setResult(Activity.RESULT_OK, result_intent);
-                            activity.finish();
-
                             // Add Review to db
                             createReview(
                                     review,
@@ -250,7 +244,8 @@ public class MyFirestoreHelper {
                                     imageUriOne,
                                     imageUriTwo,
                                     imageUriThree,
-                                    activity);
+                                    activity,
+                                    previousActivity);
                         }
                         else {
                             Toast.makeText(activity,
@@ -269,7 +264,8 @@ public class MyFirestoreHelper {
                                     Uri imageUriOne,
                                     Uri imageUriTwo,
                                     Uri imageUriThree,
-                                    AddRestroomActivity activity) {
+                                    AddRestroomActivity activity,
+                                    String previousActivity) {
 
         // Add Review to db
         MyFirestoreReferences.getReviewCollectionReference().add(review)
@@ -316,11 +312,18 @@ public class MyFirestoreHelper {
                             }
                         }
 
-                        // Direct to reviews list
-                        Intent i = new Intent(activity, ViewReviewsActivity.class);
-                        i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
-                        activity.startActivity(i);
-                        activity.finish();
+                        // Redirect to correct activity
+                        if (previousActivity.equals(ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY)) {
+                            Intent i = new Intent(activity, ViewReviewsActivity.class);
+                            i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
+                            activity.startActivity(i);
+                            activity.finish();
+                        }
+                        else if (previousActivity.equals(ActivityNames.VIEW_REVIEWS_ACTIVITY)) {
+                            activity.finish();
+                        }
+
+
                     }
                 })
                 .addOnFailureListener(activity, new OnFailureListener() {
@@ -397,7 +400,7 @@ public class MyFirestoreHelper {
         .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(Task<Void> task) {
-                // TODO: redirect somewhere
+                activity.finish();
                 Log.d("MyFirestoreHelper", "update successful");
             }
         });

@@ -2,6 +2,7 @@ package com.mobdeve.s15.g16.restroomlocator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,11 +10,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.mobdeve.s15.g16.restroomlocator.adapters.MyReviewAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
+import com.mobdeve.s15.g16.restroomlocator.utils.ActivityNames;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
@@ -41,7 +41,7 @@ public class ViewReviewsActivity extends AppCompatActivity {
         Query query = MyFirestoreReferences
                 .getReviewCollectionReference()
                 .whereEqualTo(MyFirestoreReferences.RESTROOMID_FIELD, restroomId)
-                .orderBy(MyFirestoreReferences.TIMESTAMP_FIELD);
+                .orderBy(MyFirestoreReferences.TIMESTAMP_FIELD, Query.Direction.DESCENDING);
 
         // RECYCLER VIEW
         // Define options
@@ -63,6 +63,15 @@ public class ViewReviewsActivity extends AppCompatActivity {
         };
         this.recyclerView.setLayoutManager(linearLayoutManager);
 
+        this.addReviewBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ViewReviewsActivity.this, AddRestroomActivity.class);
+                i.putExtra(IntentKeys.RESTROOM_ID_KEY, restroomId);
+                i.putExtra(IntentKeys.EDITING_KEY, false);
+                startActivity(i);
+            }
+        });
     }
 
     @Override

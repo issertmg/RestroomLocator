@@ -19,17 +19,25 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.mobdeve.s15.g16.restroomlocator.adapters.MyDetailsAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Comment;
+import com.mobdeve.s15.g16.restroomlocator.models.Review;
+import com.mobdeve.s15.g16.restroomlocator.utils.ActivityNames;
+import com.mobdeve.s15.g16.restroomlocator.utils.Helper;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,7 +110,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         Query query = MyFirestoreReferences
                 .getCommentCollectionReference()
                 .whereEqualTo(MyFirestoreReferences.REVIEWID_FIELD, reviewId)
-                .orderBy(MyFirestoreReferences.TIMESTAMP_FIELD);
+                .orderBy(MyFirestoreReferences.TIMESTAMP_FIELD, Query.Direction.ASCENDING);
 
         // RECYCLER VIEW
         // Define options
@@ -128,14 +136,12 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String comment = etComment.getText().toString();
+                String userId = MyFirestoreReferences.getAuthInstance().getUid();
+                String username = MyFirestoreReferences.getAuthInstance().getCurrentUser().getEmail().split("@")[0];
 
-                // Ready the values of the message
-                Map<String, Object> data = new HashMap<>();
-                data.put(MyFirestoreReferences.MESSAGE_FIELD, comment);
-                data.put(MyFirestoreReferences.TIMESTAMP_FIELD, FieldValue.serverTimestamp());
-
+                Log.d("COMMENT HERE:", comment);
                 // Send the data off to the Comment collection
-                MyFirestoreReferences.getCommentCollectionReference().add(data)
+                MyFirestoreReferences.getCommentCollectionReference().add(new Comment(userId, username, reviewId, comment))
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
@@ -148,10 +154,31 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Exception e) {
                                 Log.w(TAG, "Error adding document", e);
+                                Log.d("HUHU", "WHY");
                             }
                         });
             }
         });
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        MyFirestoreReferences.getReviewCollectionReference().document(reviewId).get()
+                .addOnCompleteListener(this, new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Review r = task.getResult().toObject(Review.class);
+                            tvDetailsUsername.setText(r.getUsername());
+                            tvDetailsTimestamp.setText(Helper.dateToString(r.getTimestamp()));
+                            tvDetailsRemarksInfo.setText(r.getRemarks());
+                            tvDetailsFeeInfo.setText(r.getFee());
+                            tvDetailsHoursInfo.setText(r.getStartTime() + "H - " + r.getEndTime() + "H");
+                            displayImages(reviewId, r.getImageUri1(), r.getImageUri2(), r.getImageUri3());
+                        }
+                    }
+                });
     }
 
     // Inflate options menu located on ActionBar
@@ -176,7 +203,6 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                 i.putExtra(IntentKeys.IMAGE_URI_2_KEY, imageUri2);
                 i.putExtra(IntentKeys.IMAGE_URI_3_KEY, imageUri3);
                 startActivity(i);
-                finish();
                 return true;
             case R.id.action_delete_review:
                 MyFirestoreHelper.deleteReview(this, reviewId, imageUri1, imageUri2, imageUri3);
@@ -212,5 +238,17 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         MyFirestoreHelper.downloadImageIntoImageView(reviewId,
                 imageUri1, imageUri2, imageUri3,
                 this.ivDetailsImageOne, this.ivDetailsImageTwo, this.ivDetailsImageThree);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        this.myDetailsAdapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.myDetailsAdapter.stopListening();
     }
 }

@@ -49,6 +49,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mobdeve.s15.g16.restroomlocator.utils.AccuracyOverlay;
+import com.mobdeve.s15.g16.restroomlocator.utils.ActivityNames;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
 

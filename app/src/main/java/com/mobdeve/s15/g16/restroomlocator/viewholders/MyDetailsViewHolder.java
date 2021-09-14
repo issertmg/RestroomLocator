@@ -1,5 +1,6 @@
 package com.mobdeve.s15.g16.restroomlocator.viewholders;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,7 +25,8 @@ public class MyDetailsViewHolder extends RecyclerView.ViewHolder {
     public void bindData(Comment c) {
         this.tvComment.setText(c.getMessage());
         this.tvCommentUsername.setText(c.getUsername());
-        this.tvCommentTimestamp.setText(Helper.dateToString(c.getTimestamp()));
+        if (c.getTimestamp() != null)
+            this.tvCommentTimestamp.setText(Helper.dateToString(c.getTimestamp()));
     }
 
 }

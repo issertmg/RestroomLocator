@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class MyReviewViewHolder extends RecyclerView.ViewHolder {
+
     private ImageView ivReviewImageOne, ivReviewImageTwo, ivReviewImageThree;
     private TextView tvReviewUsername, tvReviewTimestamp;
     private HorizontalScrollView imageScrollView;

@@ -26,6 +26,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
+import com.mobdeve.s15.g16.restroomlocator.utils.ActivityNames;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
@@ -126,9 +127,8 @@ public class AddRestroomActivity extends AppCompatActivity {
         String reviewId = getIntent().getStringExtra(IntentKeys.REVIEW_ID_KEY);
 
         // hide restroom name field if restroom location already exists
-        if (restroomId != null) {
+        if (restroomId != null)
             etvName.setVisibility(View.GONE);
-        }
 
         // making TimePicker dialog pop up
         tvStartTime.setOnClickListener(new View.OnClickListener() {
@@ -276,7 +276,8 @@ public class AddRestroomActivity extends AppCompatActivity {
                                 imageUriOne,
                                 imageUriTwo,
                                 imageUriThree,
-                                AddRestroomActivity.this);
+                                AddRestroomActivity.this,
+                                ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY);
                     }
                     else {
                         Review review = new Review(
@@ -300,7 +301,8 @@ public class AddRestroomActivity extends AppCompatActivity {
                                 imageUriOne,
                                 imageUriTwo,
                                 imageUriThree,
-                                AddRestroomActivity.this);
+                                AddRestroomActivity.this,
+                                ActivityNames.VIEW_REVIEWS_ACTIVITY);
                     }
                 }
             });
@@ -406,8 +408,6 @@ public class AddRestroomActivity extends AppCompatActivity {
                             imageUriThree,
                             AddRestroomActivity.this
                     );
-                    startActivity(new Intent(AddRestroomActivity.this, ViewRestroomsNearbyActivity.class));
-                    finish();
                 }
             });
         }

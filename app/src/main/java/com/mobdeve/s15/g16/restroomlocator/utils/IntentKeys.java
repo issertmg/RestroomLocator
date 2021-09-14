@@ -18,5 +18,6 @@ public class IntentKeys {
             IMAGE_URI_2_KEY = "IMAGE_URI_2_KEY",
             IMAGE_URI_3_KEY = "IMAGE_URI_3_KEY",
             REMARKS_KEY = "REMARKS_KEY",
-            TIMESTAMP_KEY = "TIMESTAMP_KEY";
+            TIMESTAMP_KEY = "TIMESTAMP_KEY",
+            PREVIOUS_ACTIVITY_KEY = "PREVIOUS_ACTIVITY_KEY";
 }
