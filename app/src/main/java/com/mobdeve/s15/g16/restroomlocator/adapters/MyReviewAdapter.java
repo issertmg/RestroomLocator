@@ -60,6 +60,7 @@ public class MyReviewAdapter extends FirestoreRecyclerAdapter<Review, MyReviewVi
                 i.putExtra(IntentKeys.REMARKS_KEY, r.getRemarks());
                 i.putExtra(IntentKeys.TIMESTAMP_KEY, Helper.dateToString(r.getTimestamp()));
                 i.putExtra(IntentKeys.RESTROOM_ID_KEY, r.getRestroomId());
+                i.putExtra(IntentKeys.USER_ID_KEY, r.getUserId());
                 ((Activity) context).startActivity(i);
             }
         });

@@ -47,11 +47,11 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     private static final String TAG = "ViewRevDetailsActivity";
 
     // intent details
-    private String reviewId, username, startTime, endTime, fee, imageUri1, imageUri2, imageUri3, remarks, timestamp, restroomId;
+    private String reviewId, username, startTime, endTime, fee, imageUri1, imageUri2, imageUri3, remarks, timestamp, restroomId, userId;
 
     // Views needed
     private TextView tvDetailsUsername, tvDetailsTimestamp, tvDetailsName,
-            tvDetailsRemarksInfo, tvDetailsFeeInfo, tvDetailsHoursInfo; //FIXME:
+            tvDetailsRemarksInfo, tvDetailsFeeInfo, tvDetailsHoursInfo;
     private EditText etComment;
     private ImageButton ibAddComment;
     private ImageView ivDetailsImageOne, ivDetailsImageTwo, ivDetailsImageThree;
@@ -95,6 +95,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         remarks = i.getStringExtra(IntentKeys.REMARKS_KEY);
         timestamp = i.getStringExtra(IntentKeys.TIMESTAMP_KEY);
         restroomId = i.getStringExtra(IntentKeys.RESTROOM_ID_KEY);
+        userId = i.getStringExtra(IntentKeys.USER_ID_KEY);
 
         this.tvDetailsUsername.setText(username);
         this.tvDetailsTimestamp.setText(timestamp);
@@ -162,6 +163,16 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (!MyFirestoreHelper.getUserID().equals(userId)) {
+            menu.findItem(R.id.action_edit_review).setVisible(false);
+            menu.findItem(R.id.action_delete_review).setVisible(false);
+            invalidateOptionsMenu();
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     protected void onRestart() {
         super.onRestart();
         MyFirestoreReferences.getReviewCollectionReference().document(reviewId).get()
@@ -180,6 +191,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     // Inflate options menu located on ActionBar
     @Override
