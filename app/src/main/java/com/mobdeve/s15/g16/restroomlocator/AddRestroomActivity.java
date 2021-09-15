@@ -393,29 +393,34 @@ public class AddRestroomActivity extends AppCompatActivity {
                     String userId = MyFirestoreHelper.getUserID();
                     String username = MyFirestoreHelper.getUsername();
 
-                    Review review = new Review(
-                            reviewId,
-                            userId,
-                            username,
-                            restroomId,
-                            tvStartTime.getText().toString(),
-                            tvEndTime.getText().toString(),
-                            etvPrice.getText().toString(),
-                            tempImgOne,
-                            tempImgTwo,
-                            tempImgThree,
-                            etvRemarks.getText().toString()
-                    );
-                    MyFirestoreHelper.editReview(
-                            review,
-                            imgOneIsNull,
-                            imgTwoIsNull,
-                            imgThreeIsNull,
-                            imageUriOne,
-                            imageUriTwo,
-                            imageUriThree,
-                            AddRestroomActivity.this
-                    );
+                    if(TextUtils.isEmpty(etvRemarks.getText().toString())){
+                        Toast.makeText(AddRestroomActivity.this, "Remarks cannot be empty", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Review review = new Review(
+                                reviewId,
+                                userId,
+                                username,
+                                restroomId,
+                                tvStartTime.getText().toString(),
+                                tvEndTime.getText().toString(),
+                                etvPrice.getText().toString(),
+                                tempImgOne,
+                                tempImgTwo,
+                                tempImgThree,
+                                etvRemarks.getText().toString()
+                        );
+                        MyFirestoreHelper.editReview(
+                                review,
+                                imgOneIsNull,
+                                imgTwoIsNull,
+                                imgThreeIsNull,
+                                imageUriOne,
+                                imageUriTwo,
+                                imageUriThree,
+                                AddRestroomActivity.this
+                        );
+                    }
                 }
             });
         }
