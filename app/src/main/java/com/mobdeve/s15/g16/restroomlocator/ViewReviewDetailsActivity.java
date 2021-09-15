@@ -2,6 +2,7 @@ package com.mobdeve.s15.g16.restroomlocator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.mobdeve.s15.g16.restroomlocator.adapters.MyDetailsAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Comment;
+import com.mobdeve.s15.g16.restroomlocator.models.Restroom;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.utils.ActivityNames;
 import com.mobdeve.s15.g16.restroomlocator.utils.Helper;
@@ -58,6 +60,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     private ImageView ivDetailsImageOne, ivDetailsImageTwo, ivDetailsImageThree;
     private HorizontalScrollView imageScrollView;
     private LinearLayout addCommentSection;
+    private LinearLayout feeSection, timeSection;
 
     // RecyclerView Components
     private RecyclerView recyclerView;
@@ -84,6 +87,8 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         this.ivDetailsImageThree = findViewById(R.id.ivDetailsImageThree);
         this.imageScrollView = findViewById(R.id.hsvImages);
         this.addCommentSection = findViewById(R.id.rlAddComment);
+        this.feeSection = findViewById(R.id.llPayment);
+        this.timeSection = findViewById(R.id.llTime);
 
         if (MyFirestoreHelper.isGuestUser())
             this.addCommentSection.setVisibility(View.GONE);
@@ -108,10 +113,32 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         this.tvDetailsRemarksInfo.setText(remarks);
         this.tvDetailsFeeInfo.setText(fee);
         this.tvDetailsHoursInfo.setText(startTime + "H - " + endTime + "H");
+
+        if (TextUtils.isEmpty(startTime) || TextUtils.isEmpty(endTime))
+            this.timeSection.setVisibility(View.GONE);
+        else
+            this.timeSection.setVisibility(View.VISIBLE);
+
+        if (TextUtils.isEmpty(fee))
+            this.feeSection.setVisibility(View.GONE);
+        else
+            this.feeSection.setVisibility(View.VISIBLE);
+
         displayImages(reviewId, imageUri1, imageUri2, imageUri3);
 
-        //TODO
-        this.tvDetailsName.setVisibility(View.GONE);
+        MyFirestoreReferences
+                .getRestroomCollectionReference()
+                .document(restroomId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Restroom location = task.getResult().toObject(Restroom.class);
+                            tvDetailsName.setText("Review of " + location.getName());
+                        }
+                    }
+                });
 
 
         // Get comments from the collection
@@ -191,6 +218,17 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                             tvDetailsRemarksInfo.setText(r.getRemarks());
                             tvDetailsFeeInfo.setText(r.getFee());
                             tvDetailsHoursInfo.setText(r.getStartTime() + "H - " + r.getEndTime() + "H");
+
+                            if (TextUtils.isEmpty(startTime) || TextUtils.isEmpty(endTime))
+                                timeSection.setVisibility(View.GONE);
+                            else
+                                timeSection.setVisibility(View.VISIBLE);
+
+                            if (TextUtils.isEmpty(fee))
+                                feeSection.setVisibility(View.GONE);
+                            else
+                                feeSection.setVisibility(View.VISIBLE);
+
                             displayImages(reviewId, r.getImageUri1(), r.getImageUri2(), r.getImageUri3());
                         }
                     }

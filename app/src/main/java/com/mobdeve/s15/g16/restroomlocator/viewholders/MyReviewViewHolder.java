@@ -1,9 +1,11 @@
 package com.mobdeve.s15.g16.restroomlocator.viewholders;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-        import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
         import androidx.recyclerview.widget.RecyclerView;
 
