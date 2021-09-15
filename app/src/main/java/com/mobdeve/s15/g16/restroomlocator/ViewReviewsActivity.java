@@ -15,6 +15,7 @@ import com.mobdeve.s15.g16.restroomlocator.adapters.MyReviewAdapter;
 import com.mobdeve.s15.g16.restroomlocator.models.Review;
 import com.mobdeve.s15.g16.restroomlocator.utils.ActivityNames;
 import com.mobdeve.s15.g16.restroomlocator.utils.IntentKeys;
+import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreHelper;
 import com.mobdeve.s15.g16.restroomlocator.utils.MyFirestoreReferences;
 
 public class ViewReviewsActivity extends AppCompatActivity {
@@ -33,6 +34,9 @@ public class ViewReviewsActivity extends AppCompatActivity {
 
         this.recyclerView = findViewById(R.id.recyclerView);
         this.addReviewBtn = findViewById(R.id.fabAddReview);
+
+        if (MyFirestoreHelper.isGuestUser())
+            this.addReviewBtn.setVisibility(View.GONE);
 
         Intent i = getIntent();
         String restroomId = i.getStringExtra(IntentKeys.RESTROOM_ID_KEY);

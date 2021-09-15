@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -56,6 +57,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     private ImageButton ibAddComment;
     private ImageView ivDetailsImageOne, ivDetailsImageTwo, ivDetailsImageThree;
     private HorizontalScrollView imageScrollView;
+    private LinearLayout addCommentSection;
 
     // RecyclerView Components
     private RecyclerView recyclerView;
@@ -81,6 +83,10 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
         this.ivDetailsImageTwo = findViewById(R.id.ivDetailsImageTwo);
         this.ivDetailsImageThree = findViewById(R.id.ivDetailsImageThree);
         this.imageScrollView = findViewById(R.id.hsvImages);
+        this.addCommentSection = findViewById(R.id.rlAddComment);
+
+        if (MyFirestoreHelper.isGuestUser())
+            this.addCommentSection.setVisibility(View.GONE);
 
 
         Intent i = getIntent();
@@ -163,7 +169,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!MyFirestoreHelper.getUserID().equals(userId)) {
+        if (MyFirestoreHelper.isGuestUser() || !MyFirestoreHelper.isCurrentUserID(userId)) {
             menu.findItem(R.id.action_edit_review).setVisible(false);
             menu.findItem(R.id.action_delete_review).setVisible(false);
             invalidateOptionsMenu();

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -18,6 +19,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -105,6 +107,7 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
     private List<Marker> markers;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,16 +118,17 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
         mFusedLocationClient = getFusedLocationProviderClient(this);
 
         setContentView(R.layout.activity_view_restrooms_nearby);
-        initializeNavigationDrawer();
 
         // Initialize Floating Action Buttons
         btnCurrentLocation = findViewById(R.id.fab_current_location);
+        btnCurrentLocation.setTooltipText("Pin current location on the map.");
         btnCurrentLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { pinCurrentLocationToMap(); }
         });
 
         btnAddReview = findViewById(R.id.fab_add_review);
+        btnAddReview.setTooltipText("Add a new restroom and review.");
         btnAddReview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,6 +146,12 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
 
             }
         });
+
+        if (MyFirestoreHelper.isGuestUser())
+            btnAddReview.setVisibility(View.GONE);
+        else
+            initializeNavigationDrawer();
+
 
         // Initialize snackbar
         cl = findViewById(R.id.snackbar_area);

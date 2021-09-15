@@ -663,4 +663,12 @@ public class MyFirestoreHelper {
         return MyFirestoreReferences.getAuthInstance().getCurrentUser().getUid();
     }
 
+    public static boolean isGuestUser() {
+        return MyFirestoreReferences.getAuthInstance().getCurrentUser() == null;
+    }
+
+    public static boolean isCurrentUserID(String id) {
+        return getUserID().equals(id);
+    }
+
 }

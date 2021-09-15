@@ -46,8 +46,8 @@ public class MyDetailsAdapter extends FirestoreRecyclerAdapter<Comment, MyDetail
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                String userId = MyFirestoreHelper.getUserID();
-                if (!userId.equals(MyFirestoreHelper.getUserID())) { return false; }
+
+                if (MyFirestoreHelper.isGuestUser() || !MyFirestoreHelper.isCurrentUserID(c.getUserId())) { return false; }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                 builder.setItems(commentActions, new DialogInterface.OnClickListener() {
