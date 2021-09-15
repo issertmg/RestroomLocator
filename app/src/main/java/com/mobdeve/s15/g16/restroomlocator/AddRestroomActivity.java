@@ -11,6 +11,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -247,63 +249,69 @@ public class AddRestroomActivity extends AppCompatActivity {
                     String userId = MyFirestoreHelper.getUserID();
                     String username = MyFirestoreHelper.getUsername();
 
-                    if (restroomId == null) {
-                        Restroom location = new Restroom(
-                                etvName.getText().toString(),
-                                latitude,
-                                longitude
-                        );
-
-                        Review review = new Review(
-                                userId,
-                                username,
-                                "",
-                                tvStartTime.getText().toString(),
-                                tvEndTime.getText().toString(),
-                                etvPrice.getText().toString(),
-                                tempImgOne,
-                                tempImgTwo,
-                                tempImgThree,
-                                etvRemarks.getText().toString()
-                        );
-
-                        MyFirestoreHelper.createRestroomLocation(
-                                location,
-                                review,
-                                imgOneIsNull,
-                                imgTwoIsNull,
-                                imgThreeIsNull,
-                                imageUriOne,
-                                imageUriTwo,
-                                imageUriThree,
-                                AddRestroomActivity.this,
-                                ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY);
+                    if(TextUtils.isEmpty(etvRemarks.getText().toString())){
+                        Toast.makeText(AddRestroomActivity.this, "Remarks cannot be empty", Toast.LENGTH_SHORT).show();
                     }
-                    else {
-                        Review review = new Review(
-                                userId,
-                                username,
-                                restroomId,
-                                tvStartTime.getText().toString(),
-                                tvEndTime.getText().toString(),
-                                etvPrice.getText().toString(),
-                                tempImgOne,
-                                tempImgTwo,
-                                tempImgThree,
-                                etvRemarks.getText().toString()
-                        );
+                    else{
+                        if (restroomId == null) {
+                            Restroom location = new Restroom(
+                                    etvName.getText().toString(),
+                                    latitude,
+                                    longitude
+                            );
 
-                        MyFirestoreHelper.createReview(
-                                review,
-                                imgOneIsNull,
-                                imgTwoIsNull,
-                                imgThreeIsNull,
-                                imageUriOne,
-                                imageUriTwo,
-                                imageUriThree,
-                                AddRestroomActivity.this,
-                                ActivityNames.VIEW_REVIEWS_ACTIVITY);
+                            Review review = new Review(
+                                    userId,
+                                    username,
+                                    "",
+                                    tvStartTime.getText().toString(),
+                                    tvEndTime.getText().toString(),
+                                    etvPrice.getText().toString(),
+                                    tempImgOne,
+                                    tempImgTwo,
+                                    tempImgThree,
+                                    etvRemarks.getText().toString()
+                            );
+
+                            MyFirestoreHelper.createRestroomLocation(
+                                    location,
+                                    review,
+                                    imgOneIsNull,
+                                    imgTwoIsNull,
+                                    imgThreeIsNull,
+                                    imageUriOne,
+                                    imageUriTwo,
+                                    imageUriThree,
+                                    AddRestroomActivity.this,
+                                    ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY);
+                        }
+                        else {
+                            Review review = new Review(
+                                    userId,
+                                    username,
+                                    restroomId,
+                                    tvStartTime.getText().toString(),
+                                    tvEndTime.getText().toString(),
+                                    etvPrice.getText().toString(),
+                                    tempImgOne,
+                                    tempImgTwo,
+                                    tempImgThree,
+                                    etvRemarks.getText().toString()
+                            );
+
+                            MyFirestoreHelper.createReview(
+                                    review,
+                                    imgOneIsNull,
+                                    imgTwoIsNull,
+                                    imgThreeIsNull,
+                                    imageUriOne,
+                                    imageUriTwo,
+                                    imageUriThree,
+                                    AddRestroomActivity.this,
+                                    ActivityNames.VIEW_REVIEWS_ACTIVITY);
+                        }
                     }
+
                 }
             });
         }
