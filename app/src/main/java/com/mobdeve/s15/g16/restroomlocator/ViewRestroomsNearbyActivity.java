@@ -28,6 +28,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.location.LocationManager;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -148,10 +149,13 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
             }
         });
 
-        if (MyFirestoreHelper.isGuestUser())
+        if (MyFirestoreHelper.isGuestUser()) {
             btnAddReview.setVisibility(View.GONE);
-        else
+            disableNavigationDrawer();
+        }
+        else {
             initializeNavigationDrawer();
+        }
 
 
         // Initialize snackbar
@@ -311,6 +315,14 @@ public class ViewRestroomsNearbyActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void disableNavigationDrawer() {
+        nv = (NavigationView)findViewById(R.id.nv);
+        Menu nvMenu = nv.getMenu();
+        nvMenu.findItem(R.id.view_profile).setVisible(false);
+        nvMenu.findItem(R.id.change_password).setVisible(false);
+        nvMenu.findItem(R.id.logout).setVisible(false);
     }
 
     @Override
