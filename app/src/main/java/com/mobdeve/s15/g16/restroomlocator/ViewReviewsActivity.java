@@ -31,6 +31,7 @@ public class ViewReviewsActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_reviews);
+        getSupportActionBar().setTitle("Reviews");
 
         this.recyclerView = findViewById(R.id.recyclerView);
         this.addReviewBtn = findViewById(R.id.fabAddReview);
