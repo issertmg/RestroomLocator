@@ -8,9 +8,17 @@
     <color name="primaryColor">#455864</color>
     <color name="primaryLightColor">#718592</color>
     <color name="primaryDarkColor">#1c2f3a</color>
-    <color name="secondaryColor">#1de9b6</color>
-    <color name="secondaryLightColor">#6effe8</color>
-    <color name="secondaryDarkColor">#00b686</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-</resources>
+<!--    <color name="secondaryColor">#1de9b6</color>-->
+<!--    <color name="secondaryLightColor">#6effe8</color>-->
+<!--    <color name="secondaryDarkColor">#00b686</color>-->
+
+<!--    <color name="secondaryColor">#00da93</color>-->
+<!--    <color name="secondaryLightColor">#63ffc4</color>-->
+<!--    <color name="secondaryDarkColor">#00a765</color>-->
+
+        <color name="secondaryColor">#00c986</color>
+        <color name="secondaryLightColor">#5efdb6</color>
+        <color name="secondaryDarkColor">#5efdb6</color>
+        <color name="black">#FF000000</color>
+        <color name="white">#FFFFFFFF</color>
+    </resources>
