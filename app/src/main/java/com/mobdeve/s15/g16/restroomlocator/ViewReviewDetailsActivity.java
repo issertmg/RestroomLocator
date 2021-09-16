@@ -72,6 +72,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_review_details);
+        getSupportActionBar().setTitle("Review Details");
 
         this.recyclerView = findViewById(R.id.rvComments);
         this.tvDetailsUsername = findViewById(R.id.tvDetailsUsername);

@@ -19,6 +19,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+        getSupportActionBar().setTitle("Change Password");
 
         etvOldPassword = findViewById(R.id.etvOldPassword);
         etvNewPassword = findViewById(R.id.etvNewPassword);

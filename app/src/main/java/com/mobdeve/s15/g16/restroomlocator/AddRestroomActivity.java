@@ -104,7 +104,7 @@ public class AddRestroomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_restroom);
-
+        getSupportActionBar().setTitle("Add Restroom Review");
         padding_px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding_dp, AddRestroomActivity.this.getResources().getDisplayMetrics());
 
         // initializing views

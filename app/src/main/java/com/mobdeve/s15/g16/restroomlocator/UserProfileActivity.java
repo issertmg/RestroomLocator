@@ -27,6 +27,8 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
 
         this.tvUsername = findViewById(R.id.tvUsername);
+        getSupportActionBar().setTitle(this.tvUsername.toString() +"'s Profile");
+
         this.tvAgeValue = findViewById(R.id.tvAgeValue);
         this.tvReviewNum = findViewById(R.id.tvNReviewsValue);
         this.recyclerView = findViewById(R.id.recyclerView);
