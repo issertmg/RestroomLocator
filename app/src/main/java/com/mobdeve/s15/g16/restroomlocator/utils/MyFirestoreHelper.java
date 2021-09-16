@@ -406,6 +406,15 @@ public class MyFirestoreHelper {
         values.put(MyFirestoreReferences.FEE_FIELD, review.getFee());
         values.put(MyFirestoreReferences.REMARKS_FIELD, review.getRemarks());
 
+        if (imgOneIsNull)
+            values.put(MyFirestoreReferences.IMAGEURI1_FIELD, imageUriOne.toString());
+
+        if (imgTwoIsNull)
+            values.put(MyFirestoreReferences.IMAGEURI2_FIELD, imageUriTwo.toString());
+
+        if (imgThreeIsNull)
+            values.put(MyFirestoreReferences.IMAGEURI3_FIELD, imageUriThree.toString());
+
         reviewRef.update(values)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -413,7 +422,6 @@ public class MyFirestoreHelper {
                         if(!(imgOneIsNull && imgTwoIsNull && imgThreeIsNull)) {
                             // store image values and upload them
                             if (!imgOneIsNull) {
-                                values.put(MyFirestoreReferences.IMAGEURI1_FIELD, imageUriOne.toString());
                                 StorageReference imageRefOne = MyFirestoreReferences.getStorageReferenceInstance()
                                         .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriOne));
                                 imageRefOne.putFile(imageUriOne)
@@ -429,7 +437,6 @@ public class MyFirestoreHelper {
                             }
 
                             if (!imgTwoIsNull) {
-                                values.put(MyFirestoreReferences.IMAGEURI2_FIELD, imageUriTwo.toString());
                                 StorageReference imageRefTwo = MyFirestoreReferences.getStorageReferenceInstance()
                                         .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriTwo));
                                 imageRefTwo.putFile(imageUriTwo)
@@ -449,7 +456,6 @@ public class MyFirestoreHelper {
                             }
 
                             if (!imgThreeIsNull) {
-                                values.put(MyFirestoreReferences.IMAGEURI3_FIELD, imageUriThree.toString());
                                 StorageReference imageRefThree = MyFirestoreReferences.getStorageReferenceInstance()
                                         .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriThree));
                                 imageRefThree.putFile(imageUriThree)
