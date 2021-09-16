@@ -33,6 +33,8 @@ public class UserProfileActivity extends AppCompatActivity {
         this.tvReviewNum = findViewById(R.id.tvNReviewsValue);
         this.recyclerView = findViewById(R.id.recyclerView);
 
+        this.setTvNumReviews(0);
+
         Query query = MyFirestoreReferences
                 .getReviewCollectionReference()
                 .whereEqualTo(MyFirestoreReferences.USERID_FIELD, MyFirestoreHelper.getUserID())
