@@ -136,7 +136,7 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                     public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             Restroom location = task.getResult().toObject(Restroom.class);
-                            tvDetailsName.setText("Review of " + location.getName());
+                            tvDetailsName.setText(location.getName());
                         }
                     }
                 });
