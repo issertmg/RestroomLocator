@@ -267,6 +267,12 @@ public class MyFirestoreHelper {
                                     AddRestroomActivity activity,
                                     String previousActivity) {
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setView(R.layout.loading_dialog_layout);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         // Add Review to db
         MyFirestoreReferences.getReviewCollectionReference().add(review)
                 .addOnSuccessListener(activity, new OnSuccessListener<DocumentReference>() {
@@ -282,7 +288,19 @@ public class MyFirestoreHelper {
                                         .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                Log.w("ADD_REVIEW_ACTIVITY", "imgOne upload successful");
+                                                if (imgTwoIsNull) {
+                                                    dialog.dismiss();
+                                                    // Redirect to correct activity
+                                                    if (previousActivity.equals(ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY)) {
+                                                        Intent i = new Intent(activity, ViewReviewsActivity.class);
+                                                        i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
+                                                        activity.startActivity(i);
+                                                        activity.finish();
+                                                    }
+                                                    else if (previousActivity.equals(ActivityNames.VIEW_REVIEWS_ACTIVITY)) {
+                                                        activity.finish();
+                                                    }
+                                                }
                                             }
                                         });
                             };
@@ -294,7 +312,19 @@ public class MyFirestoreHelper {
                                         .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                Log.w("ADD_REVIEW_ACTIVITY", "imgTwo upload successful");
+                                                if (imgThreeIsNull) {
+                                                    dialog.dismiss();
+                                                    // Redirect to correct activity
+                                                    if (previousActivity.equals(ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY)) {
+                                                        Intent i = new Intent(activity, ViewReviewsActivity.class);
+                                                        i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
+                                                        activity.startActivity(i);
+                                                        activity.finish();
+                                                    }
+                                                    else if (previousActivity.equals(ActivityNames.VIEW_REVIEWS_ACTIVITY)) {
+                                                        activity.finish();
+                                                    }
+                                                }
                                             }
                                         });
                             }
@@ -306,22 +336,35 @@ public class MyFirestoreHelper {
                                         .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                Log.w("ADD_REVIEW_ACTIVITY", "imgThree upload successful");
+                                                dialog.dismiss();
+                                                // Redirect to correct activity
+                                                if (previousActivity.equals(ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY)) {
+                                                    Intent i = new Intent(activity, ViewReviewsActivity.class);
+                                                    i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
+                                                    activity.startActivity(i);
+                                                    activity.finish();
+                                                }
+                                                else if (previousActivity.equals(ActivityNames.VIEW_REVIEWS_ACTIVITY)) {
+                                                    activity.finish();
+                                                }
                                             }
                                         });
                             }
                         }
+                        else {
+                            dialog.dismiss();
+                            // Redirect to correct activity
+                            if (previousActivity.equals(ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY)) {
+                                Intent i = new Intent(activity, ViewReviewsActivity.class);
+                                i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
+                                activity.startActivity(i);
+                                activity.finish();
+                            }
+                            else if (previousActivity.equals(ActivityNames.VIEW_REVIEWS_ACTIVITY)) {
+                                activity.finish();
+                            }
+                        }
 
-                        // Redirect to correct activity
-                        if (previousActivity.equals(ActivityNames.VIEW_RESTROOMS_NEARBY_ACTIVITY)) {
-                            Intent i = new Intent(activity, ViewReviewsActivity.class);
-                            i.putExtra(IntentKeys.RESTROOM_ID_KEY, review.getRestroomId());
-                            activity.startActivity(i);
-                            activity.finish();
-                        }
-                        else if (previousActivity.equals(ActivityNames.VIEW_REVIEWS_ACTIVITY)) {
-                            activity.finish();
-                        }
 
 
                     }
@@ -347,6 +390,13 @@ public class MyFirestoreHelper {
                                     Uri imageUriTwo,
                                     Uri imageUriThree,
                                     AddRestroomActivity activity) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setView(R.layout.loading_dialog_layout);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         DocumentReference reviewRef = MyFirestoreReferences.getReviewCollectionReference().document(review.getId());
         Map<String, Object> values = new HashMap<>();
 
@@ -356,54 +406,78 @@ public class MyFirestoreHelper {
         values.put(MyFirestoreReferences.FEE_FIELD, review.getFee());
         values.put(MyFirestoreReferences.REMARKS_FIELD, review.getRemarks());
 
-        // store image values and upload them
-        if(!imgOneIsNull){
-            values.put(MyFirestoreReferences.IMAGEURI1_FIELD, imageUriOne.toString());
-            StorageReference imageRefOne = MyFirestoreReferences.getStorageReferenceInstance()
-                    .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriOne));
-            imageRefOne.putFile(imageUriOne)
-                    .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.w("ADD_REVIEW_ACTIVITY", "imgOne upload successful");
-                        }
-                    });
-        };
-
-        if(!imgTwoIsNull){
-            values.put(MyFirestoreReferences.IMAGEURI2_FIELD, imageUriTwo.toString());
-            StorageReference imageRefTwo = MyFirestoreReferences.getStorageReferenceInstance()
-                    .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriTwo));
-            imageRefTwo.putFile(imageUriTwo)
-                    .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.w("ADD_REVIEW_ACTIVITY", "imgTwo upload successful");
-                        }
-                    });
-        }
-
-        if(!imgThreeIsNull){
-            values.put(MyFirestoreReferences.IMAGEURI3_FIELD, imageUriThree.toString());
-            StorageReference imageRefThree = MyFirestoreReferences.getStorageReferenceInstance()
-                    .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriThree));
-            imageRefThree.putFile(imageUriThree)
-                    .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.w("ADD_REVIEW_ACTIVITY", "imgThree upload successful");
-                        }
-                    });
-        }
-
         reviewRef.update(values)
-        .addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(Task<Void> task) {
-                activity.finish();
-                Log.d("MyFirestoreHelper", "update successful");
-            }
-        });
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(Task<Void> task) {
+                        if(!(imgOneIsNull && imgTwoIsNull && imgThreeIsNull)) {
+                            // store image values and upload them
+                            if (!imgOneIsNull) {
+                                values.put(MyFirestoreReferences.IMAGEURI1_FIELD, imageUriOne.toString());
+                                StorageReference imageRefOne = MyFirestoreReferences.getStorageReferenceInstance()
+                                        .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriOne));
+                                imageRefOne.putFile(imageUriOne)
+                                        .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                if (imgTwoIsNull && imgThreeIsNull) {
+                                                    dialog.dismiss();
+                                                    activity.finish();
+                                                }
+                                            }
+                                        });
+                            }
+
+                            if (!imgTwoIsNull) {
+                                values.put(MyFirestoreReferences.IMAGEURI2_FIELD, imageUriTwo.toString());
+                                StorageReference imageRefTwo = MyFirestoreReferences.getStorageReferenceInstance()
+                                        .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriTwo));
+                                imageRefTwo.putFile(imageUriTwo)
+                                        .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                if (imgOneIsNull && imgThreeIsNull) {
+                                                    dialog.dismiss();
+                                                    activity.finish();
+                                                }
+                                                else if (imgThreeIsNull) {
+                                                    dialog.dismiss();
+                                                    activity.finish();
+                                                }
+                                            }
+                                        });
+                            }
+
+                            if (!imgThreeIsNull) {
+                                values.put(MyFirestoreReferences.IMAGEURI3_FIELD, imageUriThree.toString());
+                                StorageReference imageRefThree = MyFirestoreReferences.getStorageReferenceInstance()
+                                        .child(MyFirestoreReferences.generateNewImagePath(reviewRef, imageUriThree));
+                                imageRefThree.putFile(imageUriThree)
+                                        .addOnSuccessListener(activity, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                if (imgOneIsNull && imgTwoIsNull) {
+                                                    dialog.dismiss();
+                                                    activity.finish();
+                                                }
+                                                else if (imgOneIsNull) {
+                                                    dialog.dismiss();
+                                                    activity.finish();
+                                                }
+                                                else if (imgTwoIsNull) {
+                                                    dialog.dismiss();
+                                                    activity.finish();
+                                                }
+                                            }
+                                        });
+                            }
+                        }
+                        else {
+                            dialog.dismiss();
+                            activity.finish();
+                        }
+                    }
+                });
     }
 
     public static void deleteReview(Activity a, String reviewId, String restroomId, String i1, String i2, String i3){
