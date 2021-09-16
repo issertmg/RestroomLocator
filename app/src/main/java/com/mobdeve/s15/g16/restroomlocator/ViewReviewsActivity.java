@@ -1,9 +1,11 @@
 package com.mobdeve.s15.g16.restroomlocator;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +29,7 @@ public class ViewReviewsActivity extends AppCompatActivity {
     private MyReviewAdapter myReviewAdapter;
     private FloatingActionButton addReviewBtn;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +38,7 @@ public class ViewReviewsActivity extends AppCompatActivity {
 
         this.recyclerView = findViewById(R.id.recyclerView);
         this.addReviewBtn = findViewById(R.id.fabAddReview);
+        this.addReviewBtn.setTooltipText("Add a review.");
 
         if (MyFirestoreHelper.isGuestUser())
             this.addReviewBtn.setVisibility(View.GONE);

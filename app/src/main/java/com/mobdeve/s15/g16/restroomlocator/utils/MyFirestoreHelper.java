@@ -474,6 +474,10 @@ public class MyFirestoreHelper {
                                                     dialog.dismiss();
                                                     activity.finish();
                                                 }
+                                                else if (!(imgOneIsNull && imgTwoIsNull && imgThreeIsNull)) {
+                                                    dialog.dismiss();
+                                                    activity.finish();
+                                                }
                                             }
                                         });
                             }
@@ -524,6 +528,24 @@ public class MyFirestoreHelper {
                                             if(!i3.equals(MyFirestoreReferences.NOIMAGE)) {
                                                 MyFirestoreReferences.getStorageReferenceInstance().child(pathThree).delete();
                                             }
+
+                                            MyFirestoreReferences
+                                                    .getCommentCollectionReference()
+                                                    .whereEqualTo(MyFirestoreReferences.REVIEWID_FIELD, reviewId)
+                                                    .get()
+                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
+                                                            if (task.isSuccessful()) {
+                                                                for(DocumentSnapshot doc : task.getResult()) {
+                                                                    MyFirestoreReferences
+                                                                            .getCommentCollectionReference()
+                                                                            .document(doc.getId())
+                                                                            .delete();
+                                                                }
+                                                            }
+                                                        }
+                                                    });
 
                                             Toast.makeText(a, "Delete successful", Toast.LENGTH_SHORT).show();
                                             a.finish();

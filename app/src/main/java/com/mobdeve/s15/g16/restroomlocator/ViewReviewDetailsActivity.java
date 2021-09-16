@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -175,22 +176,29 @@ public class ViewReviewDetailsActivity extends AppCompatActivity {
                 String userId = MyFirestoreHelper.getUserID();
                 String username = MyFirestoreHelper.getUsername();
 
-                // Send the data off to the Comment collection
-                MyFirestoreReferences.getCommentCollectionReference().add(new Comment(userId, username, reviewId, comment))
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-                                // "Reset" the comment in the EditText
-                                etComment.setText("");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(Exception e) {
-                                Log.w(TAG, "Error adding document", e);
-                            }
-                        });
+                if (TextUtils.isEmpty(comment)) {
+                    Toast.makeText(view.getContext(),
+                            "Comment field is empty.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    // Send the data off to the Comment collection
+                    MyFirestoreReferences.getCommentCollectionReference().add(new Comment(userId, username, reviewId, comment))
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                                    // "Reset" the comment in the EditText
+                                    etComment.setText("");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.w(TAG, "Error adding document", e);
+                                }
+                            });
+                }
             }
         });
     }
