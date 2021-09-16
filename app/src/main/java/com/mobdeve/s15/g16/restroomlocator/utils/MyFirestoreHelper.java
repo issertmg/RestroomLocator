@@ -406,13 +406,13 @@ public class MyFirestoreHelper {
         values.put(MyFirestoreReferences.FEE_FIELD, review.getFee());
         values.put(MyFirestoreReferences.REMARKS_FIELD, review.getRemarks());
 
-        if (imgOneIsNull)
+        if (!imgOneIsNull)
             values.put(MyFirestoreReferences.IMAGEURI1_FIELD, imageUriOne.toString());
 
-        if (imgTwoIsNull)
+        if (!imgTwoIsNull)
             values.put(MyFirestoreReferences.IMAGEURI2_FIELD, imageUriTwo.toString());
 
-        if (imgThreeIsNull)
+        if (!imgThreeIsNull)
             values.put(MyFirestoreReferences.IMAGEURI3_FIELD, imageUriThree.toString());
 
         reviewRef.update(values)
